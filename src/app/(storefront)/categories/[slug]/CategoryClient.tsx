@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -15,48 +16,47 @@ import type { Category } from "@/types/category";
 type Props = {
   category: Category;
   products: Product[];
+  initialFilters: FilterState;
 };
 
-export function CategoryClient({ category, products }: Props) {
-  const [filters, setFilters] = useState<FilterState>({
-    countries: [],
-    status: [],
-    priceMax: null,
-  });
+function filtersToParams(f: FilterState): string {
+  const p = new URLSearchParams();
+  if (f.status.length > 0) p.set("type", f.status.join(","));
+  if (f.countries.length > 0) p.set("source", f.countries.join(","));
+  if (f.priceMax !== null) p.set("max", String(f.priceMax));
+  return p.toString();
+}
+
+export function CategoryClient({ category, products, initialFilters }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [sort, setSort] = useState<SortOption>("featured");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const filtered = useMemo(() => {
-    let list = [...products];
+  function applyFilters(next: FilterState) {
+    const qs = filtersToParams(next);
+    router.replace(qs ? `${pathname}?${qs}` : pathname);
+  }
 
-    if (filters.countries.length > 0) {
-      list = list.filter((p) => filters.countries.includes(p.originCountry));
-    }
-    if (filters.status.length > 0) {
-      list = list.filter((p) => filters.status.includes(p.status));
-    }
-    if (filters.priceMax !== null) {
-      list = list.filter((p) => p.priceBDT <= filters.priceMax!);
-    }
-
-    return list.sort((a, b) => {
+  const sorted = useMemo(() => {
+    return [...products].sort((a, b) => {
       if (sort === "price-asc") return a.priceBDT - b.priceBDT;
       if (sort === "price-desc") return b.priceBDT - a.priceBDT;
       if (sort === "rating") return b.rating - a.rating;
       return 0;
     });
-  }, [filters, sort, products]);
+  }, [sort, products]);
 
   const activeFilterCount =
-    filters.countries.length + filters.status.length + (filters.priceMax !== null ? 1 : 0);
+    initialFilters.countries.length +
+    initialFilters.status.length +
+    (initialFilters.priceMax !== null ? 1 : 0);
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumb — desktop only */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Breadcrumb */}
       <nav className="hidden lg:flex items-center gap-2 text-[13px] text-muted mb-6">
-        <Link href="/" className="hover:text-ink transition-colors">
-          Home
-        </Link>
+        <Link href="/" className="hover:text-ink transition-colors">Home</Link>
         <span>/</span>
         <span className="text-ink">{category.label}</span>
       </nav>
@@ -75,7 +75,7 @@ export function CategoryClient({ category, products }: Props) {
       <div className="flex gap-8">
         {/* Desktop sidebar */}
         <div className="hidden lg:block">
-          <CategoryFilters filters={filters} onChange={setFilters} />
+          <CategoryFilters filters={initialFilters} onChange={applyFilters} />
         </div>
 
         {/* Main content */}
@@ -89,16 +89,7 @@ export function CategoryClient({ category, products }: Props) {
                 className="lg:hidden"
                 onClick={() => setDrawerOpen(true)}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 4h18M7 12h10M11 20h2" />
                 </svg>
                 Filters
@@ -108,14 +99,14 @@ export function CategoryClient({ category, products }: Props) {
                   </span>
                 )}
               </Button>
-              <span className="text-[13px] text-muted">{filtered.length} products</span>
+              <span className="text-[13px] text-muted">{sorted.length} products</span>
             </div>
             <SortSelect value={sort} onChange={setSort} />
           </div>
 
-          {/* Active filters */}
+          {/* Active filter chips */}
           <div className="mb-4">
-            <ActiveFilterChips filters={filters} onChange={setFilters} />
+            <ActiveFilterChips filters={initialFilters} onChange={applyFilters} />
           </div>
 
           {/* Country flag strip */}
@@ -124,13 +115,13 @@ export function CategoryClient({ category, products }: Props) {
               <button
                 key={c}
                 onClick={() => {
-                  const next = filters.countries.includes(c)
-                    ? filters.countries.filter((x) => x !== c)
-                    : [...filters.countries, c];
-                  setFilters({ ...filters, countries: next });
+                  const next = initialFilters.countries.includes(c)
+                    ? initialFilters.countries.filter((x) => x !== c)
+                    : [...initialFilters.countries, c];
+                  applyFilters({ ...initialFilters, countries: next });
                 }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[12px] font-medium flex-shrink-0 transition-colors ${
-                  filters.countries.includes(c)
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[12px] font-medium shrink-0 transition-colors ${
+                  initialFilters.countries.includes(c)
                     ? "bg-ink text-paper border-ink"
                     : "bg-paper text-ink border-line hover:border-ink"
                 }`}
@@ -141,21 +132,21 @@ export function CategoryClient({ category, products }: Props) {
             ))}
           </div>
 
-          {filtered.length === 0 ? (
+          {sorted.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[16px] text-muted">No products match your filters.</p>
               <Button
                 variant="ghost"
                 size="sm"
                 className="mt-4"
-                onClick={() => setFilters({ countries: [], status: [], priceMax: null })}
+                onClick={() => applyFilters({ countries: [], status: [], priceMax: null })}
               >
                 Clear filters
               </Button>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map((p) => (
+              {sorted.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
@@ -167,8 +158,8 @@ export function CategoryClient({ category, products }: Props) {
       <FilterDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        filters={filters}
-        onChange={setFilters}
+        filters={initialFilters}
+        onChange={applyFilters}
       />
     </div>
   );
