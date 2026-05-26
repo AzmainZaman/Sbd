@@ -24,7 +24,7 @@ const labels = {
 
 const navLinks = [
   { label: labels.navShop, href: "/" },
-  { label: labels.navCategories, href: "/categories/beauty" },
+  { label: labels.navCategories, href: "/categories" },
   { label: labels.navShipments, href: "/shipments" },
   { label: labels.navBlog, href: "/blog" },
   { label: labels.navTrack, href: "/track" },
