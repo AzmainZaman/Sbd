@@ -29,7 +29,7 @@ function deriveInitials(name: string | null | undefined): string {
 
 export function DashSidebar() {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, role } = useUser();
 
   const displayName =
     (user?.user_metadata?.name as string | undefined) ??
@@ -99,6 +99,19 @@ export function DashSidebar() {
           {labels.accountSettings}
         </Link>
       </nav>
+
+      {/* Admin panel link — only for admin users */}
+      {role === "admin" && (
+        <div className="px-3 pb-2">
+          <Link
+            href="/admin"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium text-muted hover:bg-bg hover:text-ink transition-colors"
+          >
+            <Icon name="settings" size={18} strokeWidth={1.5} />
+            Admin panel
+          </Link>
+        </div>
+      )}
 
       {/* Sign out */}
       <div className="px-3 py-4 border-t border-line">
