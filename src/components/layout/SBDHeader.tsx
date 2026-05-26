@@ -39,7 +39,7 @@ export function SBDHeader() {
   const userInitial = user?.email?.[0]?.toUpperCase() ?? null;
 
   return (
-    <header className="sticky top-0 z-30 bg-[var(--paper)] border-b border-[var(--line)]">
+    <header className="sticky top-0 z-30 bg-paper border-b border-line">
       <TopBar />
 
       {/* Main header row */}
@@ -53,35 +53,36 @@ export function SBDHeader() {
           <SBDLogoMark />
         </Link>
 
-        {/* Search bar — navigates to /search on click */}
-        <div
+        {/* Search bar */}
+        <form
           className="flex-1 max-w-lg"
-          onClick={() => router.push("/search")}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") router.push("/search"); }}
-          role="button"
-          tabIndex={0}
-          aria-label={labels.searchLabel}
+          onSubmit={(e) => {
+            e.preventDefault();
+            const q = (e.currentTarget.elements.namedItem("q") as HTMLInputElement).value.trim();
+            if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
+          }}
         >
           <div className="relative">
             <input
               type="text"
+              name="q"
               placeholder={labels.searchPlaceholder}
-              readOnly
-              tabIndex={-1}
               className={cn(
-                "w-full h-10 pl-4 pr-10 rounded-xl border border-[var(--line)] bg-[var(--bg)]",
-                "text-[14px] text-[var(--muted)] cursor-pointer",
-                "focus:outline-none focus:border-[var(--ink)] focus:bg-[var(--paper)]",
-                "transition-colors pointer-events-none"
+                "w-full h-10 pl-4 pr-10 rounded-xl border border-line bg-bg",
+                "text-[14px] text-ink placeholder:text-muted",
+                "focus:outline-none focus:border-ink focus:bg-paper",
+                "transition-colors"
               )}
             />
-            <Icon
-              name="search"
-              size={16}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] pointer-events-none"
-            />
+            <button
+              type="submit"
+              aria-label={labels.searchLabel}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-ink transition-colors cursor-pointer"
+            >
+              <Icon name="search" size={16} />
+            </button>
           </div>
-        </div>
+        </form>
 
         {/* Nav links */}
         <nav
@@ -92,7 +93,7 @@ export function SBDHeader() {
             <Link
               key={href}
               href={href}
-              className="px-3 py-2 rounded-lg text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--bg)] transition-colors"
+              className="px-3 py-2 rounded-lg text-muted hover:text-ink hover:bg-bg transition-colors"
             >
               {label}
             </Link>
@@ -104,11 +105,11 @@ export function SBDHeader() {
           <button
             onClick={openCart}
             aria-label={`${labels.cartLabel}${itemCount ? `, ${itemCount} items` : ""}`}
-            className="relative w-10 h-10 flex items-center justify-center rounded-xl text-[var(--ink)] hover:bg-[var(--bg)] transition-colors cursor-pointer"
+            className="relative w-10 h-10 flex items-center justify-center rounded-xl text-ink hover:bg-bg transition-colors cursor-pointer"
           >
             <Icon name="cart" size={20} />
             {itemCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 bg-[var(--accent)] text-[var(--paper)] text-[10px] font-bold leading-4 rounded-full text-center">
+              <span className="absolute top-1.5 right-1.5 min-w-4 h-4 px-1 bg-accent text-paper text-[10px] font-bold leading-4 rounded-full text-center">
                 {itemCount > 99 ? "99+" : itemCount}
               </span>
             )}
@@ -116,11 +117,11 @@ export function SBDHeader() {
           <Link
             href={accountHref}
             aria-label={accountLabel}
-            className="w-10 h-10 flex items-center justify-center rounded-xl text-[var(--ink)] hover:bg-[var(--bg)] transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-ink hover:bg-bg transition-colors"
           >
             {userInitial ? (
               <span
-                className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-semibold text-[var(--paper)]"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-semibold text-paper"
                 style={{ backgroundColor: "var(--ink)" }}
               >
                 {userInitial}
@@ -139,12 +140,12 @@ function SBDLogoMark() {
   return (
     <span className="flex items-center gap-1">
       <span
-        className="text-[20px] font-bold tracking-tight text-[var(--ink)]"
+        className="text-[20px] font-bold tracking-tight text-ink"
         style={{ fontFamily: "var(--font-geist-sans)" }}
       >
         SBD
       </span>
-      <span className="w-2 h-2 rounded-full bg-[var(--accent)] mt-0.5" />
+      <span className="w-2 h-2 rounded-full bg-accent mt-0.5" />
     </span>
   );
 }
