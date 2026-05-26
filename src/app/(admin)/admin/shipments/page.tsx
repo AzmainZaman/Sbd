@@ -1,4 +1,4 @@
-import { shipments } from "@/data/shipments";
+import { getAllShipmentsAdmin } from "@/actions/admin/shipments";
 import { formatDate, formatBDT } from "@/lib/utils";
 import { Chip } from "@/components/ui/Chip";
 import type { ShipmentStatus } from "@/types/shipment";
@@ -6,16 +6,15 @@ import type { ComponentProps } from "react";
 
 type ChipVariant = NonNullable<ComponentProps<typeof Chip>["variant"]>;
 
-const statusChip: Record<ShipmentStatus, { label: string; variant: ChipVariant }> =
-  {
-    accepting: { label: "Accepting", variant: "accent" },
-    cutoff: { label: "Cutoff", variant: "default" },
-    outbound: { label: "Outbound", variant: "dark" },
-    "in-transit": { label: "In transit", variant: "dark" },
-    customs: { label: "Customs", variant: "default" },
-    delivery: { label: "Delivery", variant: "stock" },
-    delivered: { label: "Delivered", variant: "stock" },
-  };
+const statusChip: Record<ShipmentStatus, { label: string; variant: ChipVariant }> = {
+  accepting: { label: "Accepting", variant: "accent" },
+  cutoff: { label: "Cutoff", variant: "default" },
+  outbound: { label: "Outbound", variant: "dark" },
+  "in-transit": { label: "In transit", variant: "dark" },
+  customs: { label: "Customs", variant: "default" },
+  delivery: { label: "Delivery", variant: "stock" },
+  delivered: { label: "Delivered", variant: "stock" },
+};
 
 const labels = {
   heading: "Shipments",
@@ -30,7 +29,9 @@ const labels = {
   noteLabel: "Note",
 };
 
-export default function AdminShipmentsPage() {
+export default async function AdminShipmentsPage() {
+  const shipments = await getAllShipmentsAdmin();
+
   const sorted = [...shipments].sort((a, b) => {
     if (a.status === "accepting" && b.status !== "accepting") return -1;
     if (b.status === "accepting" && a.status !== "accepting") return 1;
@@ -39,9 +40,7 @@ export default function AdminShipmentsPage() {
 
   return (
     <div className="px-6 py-8">
-      <h1 className="text-[20px] font-semibold text-ink mb-1">
-        {labels.heading}
-      </h1>
+      <h1 className="text-[20px] font-semibold text-ink mb-1">{labels.heading}</h1>
       <p className="text-[13px] text-muted mb-6">{labels.sub}</p>
 
       <div className="space-y-4">
@@ -49,9 +48,10 @@ export default function AdminShipmentsPage() {
           const chip = statusChip[shipment.status];
           const doneMilestones = shipment.milestones.filter((m) => m.completedAt);
           const totalMilestones = shipment.milestones.length;
-          const progressPct = Math.round(
-            (doneMilestones.length / totalMilestones) * 100
-          );
+          const progressPct =
+            totalMilestones > 0
+              ? Math.round((doneMilestones.length / totalMilestones) * 100)
+              : 0;
 
           return (
             <div
@@ -79,11 +79,13 @@ export default function AdminShipmentsPage() {
 
               {/* Date row */}
               <div className="grid grid-cols-3 gap-4 mb-4">
-                {[
-                  [labels.cutoffLabel, shipment.cutoffDate],
-                  [labels.liftoffLabel, shipment.liftoffDate],
-                  [labels.landingLabel, shipment.landingDate],
-                ].map(([lbl, date]) => (
+                {(
+                  [
+                    [labels.cutoffLabel, shipment.cutoffDate],
+                    [labels.liftoffLabel, shipment.liftoffDate],
+                    [labels.landingLabel, shipment.landingDate],
+                  ] as [string, string][]
+                ).map(([lbl, date]) => (
                   <div key={lbl}>
                     <p className="text-[11px] text-muted font-medium uppercase tracking-widest">
                       {lbl}
@@ -118,16 +120,11 @@ export default function AdminShipmentsPage() {
               {/* Milestone dots */}
               <div className="flex gap-2 flex-wrap">
                 {shipment.milestones.map((m) => (
-                  <div
-                    key={m.label}
-                    className="flex items-center gap-1.5 text-[11px]"
-                  >
+                  <div key={m.label} className="flex items-center gap-1.5 text-[11px]">
                     <span
                       className="w-2 h-2 rounded-full shrink-0"
                       style={{
-                        backgroundColor: m.completedAt
-                          ? "var(--ok)"
-                          : "var(--line)",
+                        backgroundColor: m.completedAt ? "var(--ok)" : "var(--line)",
                       }}
                     />
                     <span
@@ -153,9 +150,7 @@ export default function AdminShipmentsPage() {
                     </p>
                   )}
                   {shipment.customerNote && (
-                    <p className="text-[12px] text-muted italic">
-                      {shipment.customerNote}
-                    </p>
+                    <p className="text-[12px] text-muted italic">{shipment.customerNote}</p>
                   )}
                 </div>
               )}

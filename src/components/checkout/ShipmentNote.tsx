@@ -1,5 +1,9 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { fetchShipmentById } from "@/actions/shipments";
 import { formatDate } from "@/lib/utils";
-import { shipments } from "@/data/shipments";
+import type { Shipment } from "@/types/shipment";
 
 const labels = {
   heading: "Pre-order shipment",
@@ -17,7 +21,12 @@ type ShipmentNoteProps = {
 };
 
 export function ShipmentNote({ shipmentId, eta }: ShipmentNoteProps) {
-  const shipment = shipmentId ? shipments.find((s) => s.id === shipmentId) : null;
+  const [shipment, setShipment] = useState<Shipment | null>(null);
+
+  useEffect(() => {
+    if (!shipmentId) return;
+    fetchShipmentById(shipmentId).then(setShipment);
+  }, [shipmentId]);
 
   return (
     <div

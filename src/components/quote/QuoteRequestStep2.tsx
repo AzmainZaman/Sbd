@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
-import { shipments } from "@/data/shipments";
 import { formatBDT } from "@/lib/utils";
+import { createQuote } from "@/actions/quotes";
 import type { QuoteFormData } from "./QuoteRequestForm";
+import type { OpenShipmentSummary } from "@/actions/shipments";
 
 const labels = {
   stepLabel: "Step 2 of 2",
@@ -37,26 +38,40 @@ type SuccessState = {
 
 type QuoteRequestStep2Props = {
   data: QuoteFormData;
+  openShipments: OpenShipmentSummary[];
   onBack: () => void;
   onSuccess: (quoteId: string) => void;
 };
 
-export function QuoteRequestStep2({ data, onBack, onSuccess }: QuoteRequestStep2Props) {
+export function QuoteRequestStep2({ data, openShipments, onBack, onSuccess }: QuoteRequestStep2Props) {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<SuccessState | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const shipment = data.preferredShipmentId
-    ? shipments.find((s) => s.id === data.preferredShipmentId)
+    ? openShipments.find((s) => s.id === data.preferredShipmentId)
     : null;
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setSubmitting(true);
-    setTimeout(() => {
-      const mockId = `QR-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-      setSuccess({ quoteId: mockId });
+    setSubmitError(null);
+    try {
+      const { quoteId } = await createQuote({
+        sourceUrl: data.url,
+        productName: data.productName,
+        productVariant: data.variant || undefined,
+        quantity: data.quantity,
+        notes: data.notes || undefined,
+        preferredShipmentId: data.preferredShipmentId || undefined,
+        budgetCeilingBDT: data.budgetCeilingBDT,
+      });
+      setSuccess({ quoteId });
+      onSuccess(quoteId);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
       setSubmitting(false);
-      onSuccess(mockId);
-    }, 800);
+    }
   }
 
   if (success) {
@@ -146,6 +161,12 @@ export function QuoteRequestStep2({ data, onBack, onSuccess }: QuoteRequestStep2
           </div>
         ))}
       </div>
+
+      {submitError && (
+        <p className="text-[13px] mb-3" style={{ color: "var(--accent)" }}>
+          {submitError}
+        </p>
+      )}
 
       <div className="flex gap-3">
         <Button variant="ghost" size="lg" onClick={onBack} className="flex-1">

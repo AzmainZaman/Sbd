@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { orders } from "@/data/orders";
+import { getOrdersByCustomer } from "@/actions/orders";
 import { OrderRow } from "@/components/dashboard/OrderRow";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
@@ -23,8 +23,8 @@ const activeStatuses = new Set([
   "out-for-delivery",
 ]);
 
-export default function OrdersPage() {
-  const myOrders = orders.filter((o) => o.customerId === "cust-001");
+export default async function OrdersPage() {
+  const myOrders = await getOrdersByCustomer();
   const active = myOrders.filter((o) => activeStatuses.has(o.status));
   const past = myOrders.filter((o) => !activeStatuses.has(o.status));
 

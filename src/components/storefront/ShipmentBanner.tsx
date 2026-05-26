@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { getNextCutoff, formatCountdown } from "@/lib/shipment-utils";
+import { useEffect, useState, useRef } from "react";
+import { fetchNextCutoff } from "@/actions/shipments";
+import { formatCountdown } from "@/lib/shipment-utils";
 
 const labels = {
   shipment: "SHIPMENT",
@@ -11,27 +12,45 @@ const labels = {
   from: "from",
 };
 
-export function ShipmentBanner() {
-  const [countdown, setCountdown] = useState<string | null>(null);
+type BannerData = {
+  route: string;
+  cutoffDate: string;
+  landingDate: string;
+  number: number;
+};
 
-  // Static shipment info — derived synchronously from mock data, no SSR risk
-  const nextCutoff = getNextCutoff();
+export function ShipmentBanner() {
+  const [data, setData] = useState<BannerData | null>(null);
+  const [countdown, setCountdown] = useState<string | null>(null);
+  const cutoffRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const update = () => {
-      const r = getNextCutoff();
-      if (r) setCountdown(formatCountdown(r.msUntilCutoff));
+    let mounted = true;
+
+    fetchNextCutoff().then((next) => {
+      if (!mounted || !next) return;
+      setData(next);
+      cutoffRef.current = next.cutoffDate;
+      const ms = new Date(next.cutoffDate).getTime() - Date.now();
+      if (ms > 0) setCountdown(formatCountdown(ms));
+    });
+
+    const id = setInterval(() => {
+      if (!cutoffRef.current) return;
+      const ms = new Date(cutoffRef.current).getTime() - Date.now();
+      setCountdown(ms > 0 ? formatCountdown(ms) : null);
+    }, 60_000);
+
+    return () => {
+      mounted = false;
+      clearInterval(id);
     };
-    update();
-    const interval = setInterval(update, 60_000);
-    return () => clearInterval(interval);
   }, []);
 
-  if (!nextCutoff) return null;
+  if (!data) return null;
 
-  const { shipment } = nextCutoff;
-  const [origin] = shipment.route.split(" → ");
-  const etaDate = new Date(shipment.landingDate);
+  const [origin] = data.route.split(" → ");
+  const etaDate = new Date(data.landingDate);
   const etaStr = etaDate.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -45,7 +64,7 @@ export function ShipmentBanner() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4 flex-wrap">
             <span className="font-mono text-[12px] text-paper/50">
-              {labels.shipment} #{shipment.number}
+              {labels.shipment} #{data.number}
             </span>
             <span className="text-[14px] font-medium text-paper">
               {labels.from} {origin} · Arriving {etaStr}

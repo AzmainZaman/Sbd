@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
 
 const labels = {
@@ -51,6 +52,13 @@ const navItems: NavItem[] = [
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const { user } = useUser();
+
+  const resolvedItems = navItems.map((item) =>
+    item.label === labels.account
+      ? { ...item, href: user ? "/dashboard" : "/login", matchPrefix: user ? "/dashboard" : "/login" }
+      : item
+  );
 
   const isActive = (item: NavItem) => {
     if (item.matchPrefix === "/") return pathname === "/";
@@ -63,7 +71,7 @@ export function MobileBottomNav() {
       className="fixed bottom-0 inset-x-0 z-30 lg:hidden bg-[var(--paper)] border-t border-[var(--line)] safe-area-pb"
     >
       <div className="flex items-stretch h-16">
-        {navItems.map((item) => {
+        {resolvedItems.map((item) => {
           const active = isActive(item);
           return (
             <Link

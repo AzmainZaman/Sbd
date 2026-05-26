@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { quotes as allQuotes } from "@/data/quotes";
-import { shipments } from "@/data/shipments";
+import { useState, useEffect } from "react";
+import { getAdminQuoteInbox, sendQuote, type QuotePricing } from "@/actions/admin/quotes";
+import { fetchOpenShipments, type OpenShipmentSummary } from "@/actions/shipments";
 import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -53,6 +53,7 @@ const labels = {
   etaLabel: "ETA (ISO date, e.g. 2026-06-28)",
   adminNoteLabel: "Note for customer (optional)",
   sendQuote: "Send quote",
+  sending: "Sending…",
   quoteAlreadySent: "Quote sent",
   sentDetails: "Sent quote details",
   expiry: "Expires",
@@ -119,7 +120,15 @@ function InboxRow({
   );
 }
 
-function DetailPane({ quote }: { quote: Quote }) {
+function DetailPane({
+  quote,
+  openShipments,
+  onSent,
+}: {
+  quote: Quote;
+  openShipments: OpenShipmentSummary[];
+  onSent: () => void;
+}) {
   const [compose, setCompose] = useState<ComposeState>({
     ...defaultCompose,
     shipmentId: quote.preferredShipmentId ?? "",
@@ -130,13 +139,38 @@ function DetailPane({ quote }: { quote: Quote }) {
     handling: quote.handlingBDT?.toString() ?? "500",
     adminNote: quote.adminNote ?? "",
   });
-  const [sent, setSent] = useState(quote.status === "quote-sent");
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [justSent, setJustSent] = useState(false);
 
+  const isSent = quote.status === "quote-sent" || justSent;
   const total = calcTotal(compose);
-  const acceptingShipments = shipments.filter((s) => s.status === "accepting");
 
   function set(field: keyof ComposeState, val: string) {
     setCompose((prev) => ({ ...prev, [field]: val }));
+  }
+
+  async function handleSend() {
+    setSending(true);
+    setSendError(null);
+    try {
+      const pricing: QuotePricing = {
+        itemPriceBDT: Number(compose.itemPrice),
+        dutyBDT: Number(compose.duty),
+        inboundShippingBDT: Number(compose.shipping),
+        handlingBDT: Number(compose.handling),
+        shipmentId: compose.shipmentId,
+        eta: compose.eta,
+        adminNote: compose.adminNote || undefined,
+      };
+      await sendQuote(quote.id, pricing);
+      setJustSent(true);
+      onSent();
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : "Failed to send quote.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -165,7 +199,7 @@ function DetailPane({ quote }: { quote: Quote }) {
           </div>
           <div>
             <span className="text-muted">{labels.phoneLabel}: </span>
-            <span className="font-mono text-ink">{quote.customerPhone}</span>
+            <span className="font-mono text-ink">{quote.customerPhone ?? "—"}</span>
           </div>
           <div>
             <span className="text-muted">{labels.retailerLabel}: </span>
@@ -205,7 +239,7 @@ function DetailPane({ quote }: { quote: Quote }) {
 
       {/* Compose or read-only details */}
       <div className="px-6 py-5 flex-1">
-        {quote.status === "pending" && !sent ? (
+        {!isSent ? (
           <>
             <h3 className="text-[14px] font-semibold text-ink mb-4">
               {labels.composeHeading}
@@ -223,7 +257,7 @@ function DetailPane({ quote }: { quote: Quote }) {
                   className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-[13px] text-ink focus:outline-none focus:border-ink"
                 >
                   <option value="">— Select shipment —</option>
-                  {acceptingShipments.map((s) => (
+                  {openShipments.map((s) => (
                     <option key={s.id} value={s.id}>
                       #{s.number} · {s.route} · cutoff{" "}
                       {formatDate(s.cutoffDate, "short")}
@@ -295,14 +329,20 @@ function DetailPane({ quote }: { quote: Quote }) {
                 />
               </div>
 
+              {sendError && (
+                <p className="text-[12px]" style={{ color: "var(--accent)" }}>
+                  {sendError}
+                </p>
+              )}
+
               <Button
                 variant="primary"
                 size="md"
                 className="w-full"
-                disabled={!compose.itemPrice || !compose.shipmentId || !compose.eta}
-                onClick={() => setSent(true)}
+                disabled={!compose.itemPrice || !compose.shipmentId || !compose.eta || sending}
+                onClick={handleSend}
               >
-                {labels.sendQuote}
+                {sending ? labels.sending : labels.sendQuote}
               </Button>
             </div>
           </>
@@ -310,12 +350,10 @@ function DetailPane({ quote }: { quote: Quote }) {
           <>
             {/* Sent / read-only view */}
             <h3 className="text-[14px] font-semibold text-ink mb-4">
-              {sent && quote.status === "pending"
-                ? labels.quoteAlreadySent
-                : labels.sentDetails}
+              {justSent ? labels.quoteAlreadySent : labels.sentDetails}
             </h3>
 
-            {sent && quote.status === "pending" && (
+            {justSent && (
               <div
                 className="rounded-xl border px-4 py-3 mb-4"
                 style={{
@@ -327,54 +365,17 @@ function DetailPane({ quote }: { quote: Quote }) {
                   className="text-[13px] font-medium"
                   style={{ color: "var(--ok)" }}
                 >
-                  Quote sent to {quote.customerName}. (Phase 1 mock — no email
-                  sent.)
+                  Quote sent to {quote.customerName}. A Resend email has been dispatched.
                 </p>
               </div>
             )}
 
             <div className="space-y-2 text-[13px]">
               {[
-                [
-                  "Item price",
-                  quote.itemPriceBDT != null
-                    ? formatBDT(
-                        sent
-                          ? Number(compose.itemPrice) || quote.itemPriceBDT
-                          : quote.itemPriceBDT
-                      )
-                    : "—",
-                ],
-                [
-                  "Duty",
-                  quote.dutyBDT != null
-                    ? formatBDT(
-                        sent
-                          ? Number(compose.duty) || quote.dutyBDT
-                          : quote.dutyBDT
-                      )
-                    : "—",
-                ],
-                [
-                  "Inbound shipping",
-                  quote.inboundShippingBDT != null
-                    ? formatBDT(
-                        sent
-                          ? Number(compose.shipping) || quote.inboundShippingBDT
-                          : quote.inboundShippingBDT
-                      )
-                    : "—",
-                ],
-                [
-                  "Handling",
-                  quote.handlingBDT != null
-                    ? formatBDT(
-                        sent
-                          ? Number(compose.handling) || quote.handlingBDT
-                          : quote.handlingBDT
-                      )
-                    : "—",
-                ],
+                ["Item price", quote.itemPriceBDT != null ? formatBDT(quote.itemPriceBDT) : "—"],
+                ["Duty", quote.dutyBDT != null ? formatBDT(quote.dutyBDT) : "—"],
+                ["Inbound shipping", quote.inboundShippingBDT != null ? formatBDT(quote.inboundShippingBDT) : "—"],
+                ["Handling", quote.handlingBDT != null ? formatBDT(quote.handlingBDT) : "—"],
               ].map(([key, val]) => (
                 <div key={key} className="flex justify-between">
                   <span className="text-muted">{key}</span>
@@ -384,28 +385,24 @@ function DetailPane({ quote }: { quote: Quote }) {
               <div className="flex justify-between border-t border-line pt-2 font-semibold">
                 <span className="text-ink">Total</span>
                 <span className="font-mono text-ink">
-                  {quote.totalBDT != null
-                    ? formatBDT(sent ? total || quote.totalBDT : quote.totalBDT)
-                    : "—"}
+                  {quote.totalBDT != null ? formatBDT(quote.totalBDT) : "—"}
                 </span>
               </div>
             </div>
 
-            {(compose.eta || quote.eta) && (
+            {quote.eta && (
               <p className="text-[12px] text-muted mt-3">
                 ETA:{" "}
                 <span className="font-mono text-ink">
-                  {formatDate(compose.eta || quote.eta!, "mono")}
+                  {formatDate(quote.eta, "mono")}
                 </span>
               </p>
             )}
 
-            {(compose.adminNote || quote.adminNote) && (
+            {quote.adminNote && (
               <div className="mt-3 bg-bg rounded-lg px-3 py-2">
                 <p className="text-[12px] text-muted mb-0.5">Note to customer</p>
-                <p className="text-[13px] text-ink">
-                  {compose.adminNote || quote.adminNote}
-                </p>
+                <p className="text-[13px] text-ink">{quote.adminNote}</p>
               </div>
             )}
 
@@ -422,11 +419,26 @@ function DetailPane({ quote }: { quote: Quote }) {
 }
 
 export default function AdminQuotesPage() {
-  const sorted = [...allQuotes].sort(
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [openShipments, setOpenShipments] = useState<OpenShipmentSummary[]>([]);
+
+  function refreshQuotes() {
+    getAdminQuoteInbox().then((data) => {
+      setQuotes(data);
+    });
+  }
+
+  useEffect(() => {
+    getAdminQuoteInbox().then((data) => {
+      setQuotes(data);
+      setSelectedId(data[0]?.id ?? null);
+    });
+    fetchOpenShipments().then(setOpenShipments);
+  }, []);
+
+  const sorted = [...quotes].sort(
     (a, b) => sortOrder[a.status] - sortOrder[b.status]
-  );
-  const [selectedId, setSelectedId] = useState<string | null>(
-    sorted[0]?.id ?? null
   );
   const selected = sorted.find((q) => q.id === selectedId) ?? null;
 
@@ -455,7 +467,12 @@ export default function AdminQuotesPage() {
       {/* Detail / compose pane */}
       <div className="flex-1 min-w-0 bg-paper overflow-auto">
         {selected ? (
-          <DetailPane key={selected.id} quote={selected} />
+          <DetailPane
+            key={selected.id}
+            quote={selected}
+            openShipments={openShipments}
+            onSent={refreshQuotes}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center px-8">
             <Icon

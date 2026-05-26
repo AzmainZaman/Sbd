@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { formatBDT, formatDate } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import { acceptQuote, declineQuote } from "@/actions/quotes";
 import type { Quote, QuoteStatus } from "@/types/quote";
 
 type ChipVariant = NonNullable<ComponentProps<typeof Chip>["variant"]>;
@@ -68,6 +69,7 @@ export function QuoteThread({ quote, onAccepted, onDeclined }: QuoteThreadProps)
   const { addItem, openCart } = useCart();
   const [localStatus, setLocalStatus] = useState<QuoteStatus>(quote.status);
   const [justAccepted, setJustAccepted] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const hasBreakdown =
     quote.itemPriceBDT !== undefined &&
@@ -76,27 +78,39 @@ export function QuoteThread({ quote, onAccepted, onDeclined }: QuoteThreadProps)
     quote.handlingBDT !== undefined &&
     quote.totalBDT !== undefined;
 
-  function handleAccept() {
-    addItem({
-      productId: `quote-${quote.id}`,
-      productName: quote.productName,
-      variant: quote.productVariant,
-      priceBDT: quote.totalBDT ?? 0,
-      quantity: quote.quantity,
-      type: "pre-order",
-      shipmentId: quote.shipmentId,
-      eta: quote.eta,
-      hero: "linear-gradient(135deg, #e8e4dc 0%, #c8c0b0 100%)",
-    });
-    setLocalStatus("accepted");
-    setJustAccepted(true);
-    openCart();
-    onAccepted?.();
+  async function handleAccept() {
+    setActionError(null);
+    try {
+      const result = await acceptQuote(quote.id);
+      addItem({
+        productId: `quote-${quote.id}`,
+        productName: result.productName,
+        variant: result.productVariant,
+        priceBDT: result.totalBDT,
+        quantity: result.quantity,
+        type: "pre-order",
+        shipmentId: result.shipmentId,
+        eta: result.eta,
+        hero: "linear-gradient(135deg, #e8e4dc 0%, #c8c0b0 100%)",
+      });
+      setLocalStatus("accepted");
+      setJustAccepted(true);
+      openCart();
+      onAccepted?.();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    }
   }
 
-  function handleDecline() {
-    setLocalStatus("declined");
-    onDeclined?.();
+  async function handleDecline() {
+    setActionError(null);
+    try {
+      await declineQuote(quote.id);
+      setLocalStatus("declined");
+      onDeclined?.();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    }
   }
 
   return (
@@ -209,6 +223,12 @@ export function QuoteThread({ quote, onAccepted, onDeclined }: QuoteThreadProps)
         )}
         {localStatus === "expired" && (
           <p className="text-[13px] text-muted">{labels.expiredMsg}</p>
+        )}
+
+        {actionError && (
+          <p className="text-[12px]" style={{ color: "var(--accent)" }}>
+            {actionError}
+          </p>
         )}
 
         {/* CTAs — only while quote is actionable */}

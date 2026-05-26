@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getNextCutoff, formatCountdown } from "@/lib/shipment-utils";
+import { useState, useEffect, useRef } from "react";
+import { formatCountdown } from "@/lib/shipment-utils";
+import { fetchNextCutoff } from "@/actions/shipments";
 import { Icon } from "@/components/ui/Icon";
 
 const labels = {
@@ -14,18 +15,29 @@ const labels = {
 export function TopBar() {
   const [countdownText, setCountdownText] = useState<string | null>(null);
   const [route, setRoute] = useState<string | null>(null);
+  const cutoffDateRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const update = () => {
-      const next = getNextCutoff();
-      if (next) {
-        setCountdownText(formatCountdown(next.msUntilCutoff));
-        setRoute(next.shipment.route);
-      }
+    let mounted = true;
+
+    fetchNextCutoff().then((next) => {
+      if (!mounted || !next) return;
+      cutoffDateRef.current = next.cutoffDate;
+      setRoute(next.route);
+      const ms = new Date(next.cutoffDate).getTime() - Date.now();
+      setCountdownText(formatCountdown(ms));
+    });
+
+    const id = setInterval(() => {
+      if (!cutoffDateRef.current) return;
+      const ms = new Date(cutoffDateRef.current).getTime() - Date.now();
+      setCountdownText(ms > 0 ? formatCountdown(ms) : null);
+    }, 60_000);
+
+    return () => {
+      mounted = false;
+      clearInterval(id);
     };
-    update();
-    const id = setInterval(update, 60_000);
-    return () => clearInterval(id);
   }, []);
 
   return (

@@ -1,13 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import type { PaymentMethod } from "@/types/order";
+
+const paymentNote: Partial<Record<PaymentMethod, string>> = {
+  bkash: "After placing your order you'll need to send payment via bKash. Instructions appear on the next screen.",
+  nagad: "After placing your order you'll need to send payment via Nagad. Instructions appear on the next screen.",
+  card: "After placing your order you'll need to complete payment manually. Instructions appear on the next screen.",
+};
 
 const labels = {
   consentText:
     "I agree to the Terms & Conditions, the Pre-order Policy (custom quotes are non-refundable once shipping begins), and the Refund Policy.",
-  termsLink: "Terms & Conditions",
-  policyLink: "Pre-order Policy",
-  refundLink: "Refund Policy",
   placeOrder: "Place order",
   selectPayment: "Select a payment method to continue",
 };
@@ -16,16 +20,21 @@ type ConsentBlockProps = {
   agreed: boolean;
   onAgreedChange: (v: boolean) => void;
   paymentSelected: boolean;
+  paymentMethod?: PaymentMethod | null;
   onPlaceOrder: () => void;
+  isPlacing?: boolean;
 };
 
 export function ConsentBlock({
   agreed,
   onAgreedChange,
   paymentSelected,
+  paymentMethod,
   onPlaceOrder,
+  isPlacing = false,
 }: ConsentBlockProps) {
-  const canPlace = agreed && paymentSelected;
+  const canPlace = agreed && paymentSelected && !isPlacing;
+  const note = paymentMethod ? paymentNote[paymentMethod] : undefined;
 
   return (
     <div className="space-y-4">
@@ -58,6 +67,11 @@ export function ConsentBlock({
         </p>
       </label>
 
+      {/* Payment note for non-COD */}
+      {note && (
+        <p className="text-[12px] text-muted leading-relaxed px-1">{note}</p>
+      )}
+
       {/* CTA */}
       {!paymentSelected && (
         <p className="text-[12px] text-muted text-center">{labels.selectPayment}</p>
@@ -70,7 +84,7 @@ export function ConsentBlock({
         onClick={onPlaceOrder}
         className="w-full"
       >
-        {labels.placeOrder}
+        {isPlacing ? "Placing order…" : labels.placeOrder}
       </Button>
     </div>
   );

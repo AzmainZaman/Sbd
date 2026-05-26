@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { TopBar } from "./TopBar";
 import { Icon } from "@/components/ui/Icon";
 import { useCart } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
 
 const labels = {
@@ -18,6 +19,7 @@ const labels = {
   navTrack: "Track order",
   cartLabel: "Open cart",
   accountLabel: "Account",
+  signIn: "Sign in",
 };
 
 const navLinks = [
@@ -30,7 +32,11 @@ const navLinks = [
 
 export function SBDHeader() {
   const { itemCount, openCart } = useCart();
+  const { user } = useUser();
   const router = useRouter();
+  const accountHref = user ? "/dashboard" : "/login";
+  const accountLabel = user ? labels.accountLabel : labels.signIn;
+  const userInitial = user?.email?.[0]?.toUpperCase() ?? null;
 
   return (
     <header className="sticky top-0 z-30 bg-[var(--paper)] border-b border-[var(--line)]">
@@ -108,11 +114,20 @@ export function SBDHeader() {
             )}
           </button>
           <Link
-            href="/dashboard"
-            aria-label={labels.accountLabel}
+            href={accountHref}
+            aria-label={accountLabel}
             className="w-10 h-10 flex items-center justify-center rounded-xl text-[var(--ink)] hover:bg-[var(--bg)] transition-colors"
           >
-            <Icon name="user" size={20} />
+            {userInitial ? (
+              <span
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-semibold text-[var(--paper)]"
+                style={{ backgroundColor: "var(--ink)" }}
+              >
+                {userInitial}
+              </span>
+            ) : (
+              <Icon name="user" size={20} />
+            )}
           </Link>
         </div>
       </div>

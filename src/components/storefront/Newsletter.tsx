@@ -30,7 +30,7 @@ export function Newsletter() {
           <p className="mt-3 text-[15px] text-muted">{labels.sub}</p>
 
           {submitted ? (
-            <div className="mt-8 rounded-xl bg-[var(--accent-soft)] border border-[#f5cfc6] px-6 py-4">
+            <div className="mt-8 rounded-xl bg-accent-soft border border-accent-border px-6 py-4">
               <p className="text-[14px] font-medium" style={{ color: "var(--accent)" }}>
                 {labels.success}
               </p>

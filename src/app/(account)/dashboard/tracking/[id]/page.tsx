@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { orders } from "@/data/orders";
+import { getOrder } from "@/actions/orders";
 import { TrackingTimeline } from "@/components/dashboard/TrackingTimeline";
 import { Chip } from "@/components/ui/Chip";
 import { formatDate, formatBDT } from "@/lib/utils";
 import type { OrderStatus } from "@/types/order";
 import type { ComponentProps } from "react";
+
+export const dynamic = "force-dynamic";
 
 type ChipVariant = NonNullable<ComponentProps<typeof Chip>["variant"]>;
 
@@ -37,13 +39,9 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateStaticParams() {
-  return orders.map((o) => ({ id: o.id }));
-}
-
 export default async function TrackingPage({ params }: PageProps) {
   const { id } = await params;
-  const order = orders.find((o) => o.id === id);
+  const order = await getOrder(id);
 
   if (!order) notFound();
 
@@ -129,21 +127,23 @@ export default async function TrackingPage({ params }: PageProps) {
       </section>
 
       {/* Delivery address */}
-      <section className="rounded-xl border border-line bg-paper px-4 py-4 mb-6">
-        <p className="text-[12px] font-semibold text-muted uppercase tracking-widest mb-2">
-          {labels.addressLabel}
-        </p>
-        <p className="text-[14px] text-ink">
-          {addr.streetAddress}
-          {addr.apt && `, ${addr.apt}`}
-        </p>
-        <p className="text-[14px] text-ink">
-          {addr.area}, {addr.city} {addr.postalCode}
-        </p>
-        {addr.landmark && (
-          <p className="text-[12px] text-muted mt-1">{addr.landmark}</p>
-        )}
-      </section>
+      {addr && (
+        <section className="rounded-xl border border-line bg-paper px-4 py-4 mb-6">
+          <p className="text-[12px] font-semibold text-muted uppercase tracking-widest mb-2">
+            {labels.addressLabel}
+          </p>
+          <p className="text-[14px] text-ink">
+            {addr.streetAddress}
+            {addr.apt && `, ${addr.apt}`}
+          </p>
+          <p className="text-[14px] text-ink">
+            {addr.area}, {addr.city} {addr.postalCode}
+          </p>
+          {addr.landmark && (
+            <p className="text-[12px] text-muted mt-1">{addr.landmark}</p>
+          )}
+        </section>
+      )}
 
       {/* Tracking timeline */}
       <section>

@@ -8,8 +8,8 @@ type ChipProps = HTMLAttributes<HTMLSpanElement> & {
 };
 
 const variantClasses: Record<ChipVariant, string> = {
-  stock: "bg-[#e8f5ee] text-[var(--ok)] border border-[#c3e6d4]",
-  pre: "bg-[var(--accent-soft)] text-[var(--accent)] border border-[#f5cfc6]",
+  stock: "bg-ok-soft text-ok border border-ok-border",
+  pre: "bg-accent-soft text-accent border border-accent-border",
   accent: "bg-[var(--accent)] text-[var(--paper)]",
   line: "bg-transparent text-[var(--ink)] border border-[var(--line)]",
   dark: "bg-[var(--ink)] text-[var(--paper)]",

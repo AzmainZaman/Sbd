@@ -176,7 +176,7 @@ type Quote = {
   id: string;                     // e.g. "QR-2026-08412"
   customerId: string;
   customerName: string;
-  customerPhone: string;
+  customerPhone?: string;              // optional until SMS OTP exists in Phase 3
   requestedAt: string;            // ISO datetime
   sourceUrl: string;
   sourceRetailer: string;

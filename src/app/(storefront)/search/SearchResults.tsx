@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { SearchField } from "@/components/search/SearchField";
 import { ProductCard } from "@/components/product/ProductCard";
 import { QuoteRequestForm, type QuoteFormData } from "@/components/quote/QuoteRequestForm";
 import { QuoteRequestStep2 } from "@/components/quote/QuoteRequestStep2";
-import { products } from "@/data/products";
+import { searchProducts } from "@/actions/products";
+import { fetchOpenShipments, type OpenShipmentSummary } from "@/actions/shipments";
+import type { Product } from "@/types/product";
 
 const labels = {
   heading: "Search",
@@ -19,19 +21,20 @@ const labels = {
 
 type QuoteStep = "form" | "review";
 
-/**
- * Manages step state for the two-step quote request flow.
- * Rendered with key={detectedUrl} in the parent so state resets automatically
- * whenever the URL in the search bar changes.
- */
 function QuoteFlow({ detectedUrl }: { detectedUrl: string }) {
   const [quoteStep, setQuoteStep] = useState<QuoteStep>("form");
   const [formData, setFormData] = useState<QuoteFormData | null>(null);
+  const [openShipments, setOpenShipments] = useState<OpenShipmentSummary[]>([]);
+
+  useEffect(() => {
+    fetchOpenShipments().then(setOpenShipments);
+  }, []);
 
   if (quoteStep === "form") {
     return (
       <QuoteRequestForm
         initialUrl={detectedUrl}
+        openShipments={openShipments}
         onNext={(data) => {
           setFormData(data);
           setQuoteStep("review");
@@ -44,6 +47,7 @@ function QuoteFlow({ detectedUrl }: { detectedUrl: string }) {
     return (
       <QuoteRequestStep2
         data={formData}
+        openShipments={openShipments}
         onBack={() => setQuoteStep("form")}
         onSuccess={() => {}}
       />
@@ -70,15 +74,27 @@ export function SearchResults() {
   const isQuoteMode = !!urlParam || isUrl(q);
   const detectedUrl = urlParam || (isUrl(q) ? q : "");
 
-  const results =
-    q && !isQuoteMode
-      ? products.filter(
-          (p) =>
-            p.name.toLowerCase().includes(q.toLowerCase()) ||
-            p.brand.toLowerCase().includes(q.toLowerCase()) ||
-            p.tags.some((t) => t.toLowerCase().includes(q.toLowerCase()))
-        )
-      : [];
+  const [fetched, setFetched] = useState<{ q: string; results: Product[] }>({
+    q: "",
+    results: [],
+  });
+  const abortRef = useRef<AbortController | null>(null);
+
+  const isSearchActive = !!q && !isQuoteMode;
+  const loading = isSearchActive && fetched.q !== q;
+  const results = isSearchActive && fetched.q === q ? fetched.results : [];
+
+  useEffect(() => {
+    abortRef.current?.abort();
+    if (!q || isQuoteMode) return;
+
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    const query = q;
+    searchProducts(query).then((data) => {
+      if (!ctrl.signal.aborted) setFetched({ q: query, results: data });
+    });
+  }, [q, isQuoteMode]);
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -91,14 +107,13 @@ export function SearchResults() {
       )}
 
       {isQuoteMode ? (
-        // key forces QuoteFlow to remount when the URL changes, resetting step state
         <QuoteFlow key={detectedUrl} detectedUrl={detectedUrl} />
       ) : q ? (
         <>
           <p className="text-[14px] text-[var(--muted)] mb-6">
-            {results.length} {labels.results} &ldquo;{q}&rdquo;
+            {loading ? "Searching…" : `${results.length} ${labels.results} “${q}”`}
           </p>
-          {results.length === 0 ? (
+          {!loading && results.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-[16px] text-[var(--muted)]">
                 {labels.noResults} &ldquo;{q}&rdquo;

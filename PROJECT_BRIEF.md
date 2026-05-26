@@ -20,7 +20,7 @@ Customers browse or paste product links, receive a transparent quote (price + du
 - Order and shipment tracking (milestone-based)
 - Customer dashboard: orders, quotes, tracking, saved items, addresses
 - Public shipment schedule page
-- Public order tracking (order number + phone verification)
+- Public order tracking (order number + email verification in Phase 2; phone verification deferred until SMS OTP exists)
 - Blog (read-only, public)
 
 ### Admin-facing
@@ -29,9 +29,9 @@ Customers browse or paste product links, receive a transparent quote (price + du
 - Order management with status tracking
 - Product catalog (in-stock + pre-order, by shipment)
 
-### Deferred to Phase 2
-- Traveler portal (landing, sign-up, dashboard, earnings)
-- Full Bangla language support (UI is i18n-ready from Phase 1)
+### Deferred to later phases
+- Traveler portal (landing, sign-up, dashboard, earnings) — Phase 4
+- Full Bangla language support (UI is i18n-ready from Phase 1) — Phase 4
 
 ---
 
@@ -44,22 +44,27 @@ USA and UK shipments are fully modeled in v1. EU, China, Australia, UAE appear i
 
 | Rule | Decision |
 |---|---|
-| Auth required for quote submission and checkout | Yes — phone OTP login |
+| Auth required for quote submission and checkout | Yes — email OTP login in Phase 2; phone/SMS OTP deferred to Phase 3 |
 | Guest checkout | Not supported in v1 |
 | COD | In-stock items only, not pre-orders |
 | Deposit / partial payment | Deferred — remove CTA from v1 |
 | Duty display | Always a separate checkout line item; remove "duty included" copy from PDPs |
 | Promo codes | Deferred — no input field or backend coupon logic in v1 |
 | Bangla language | UI i18n-ready; launch English only |
-| Traveler portal | Deferred to Phase 2 |
+| Traveler portal | Deferred to Phase 4 |
 
 ---
 
-## Payment Methods (v1)
-- **bKash** — primary mobile banking (redirect via bKash Payment Gateway)
-- **Nagad** — secondary mobile banking
+## Payment Methods
+
+### Phase 2 payment workflow
+- **COD** — live for eligible in-stock orders only
+- **bKash / Nagad / Card** — show manual payment instructions; customer sends payment manually and admin confirms
+
+### Phase 3 (real gateway integrations)
+- **bKash** — redirect via bKash Payment Gateway
+- **Nagad** — redirect via Nagad gateway
 - **Card** — via SSLCommerz
-- **COD** — in-stock orders only
 
 ---
 
@@ -85,7 +90,7 @@ USA and UK shipments are fully modeled in v1. EU, China, Australia, UAE appear i
 | `/dashboard/orders` | Orders list |
 | `/dashboard/quotes` | Quotes list |
 | `/dashboard/tracking/[id]` | Tracking detail |
-| `/track` | Public order tracking (order # + phone) |
+| `/track` | Public order tracking (order # + email) |
 | `/shipments` | Public shipment schedule |
 | `/blog` | Blog index |
 | `/blog/[slug]` | Blog article |
@@ -93,4 +98,4 @@ USA and UK shipments are fully modeled in v1. EU, China, Australia, UAE appear i
 | `/admin/orders` | Admin: orders |
 | `/admin/shipments` | Admin: shipment management |
 | `/admin/catalog` | Admin: product catalog |
-| `/login` | Phone OTP login (Phase 2) |
+| `/login` | Email OTP login (Phase 2) |

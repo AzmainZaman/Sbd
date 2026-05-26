@@ -22,6 +22,7 @@ export type OrderStatus =
   | "cancelled";
 
 export type OrderLine = {
+  id?: string;
   productId: string;
   productName: string;
   variant?: string;
@@ -33,10 +34,12 @@ export type OrderLine = {
 };
 
 export type TrackingStep = {
+  id?: string;
   label: string;
   description: string;
-  timestamp?: string; // ISO datetime
+  occurredAt?: string; // ISO datetime — maps to DB column occurred_at
   status: "done" | "current" | "pending";
+  position?: number;
 };
 
 export type Order = {
@@ -46,7 +49,7 @@ export type Order = {
   status: OrderStatus;
   type: "in-stock" | "pre-order" | "mixed";
   lines: OrderLine[];
-  deliveryAddress: Address;
+  deliveryAddress?: Address;
   deliveryMethod: "split" | "together";
   shippingBDT: number;
   dutyBDT: number;
@@ -56,6 +59,7 @@ export type Order = {
   totalBDT: number;
   paymentMethod: PaymentMethod;
   paymentStatus: "pending" | "paid" | "failed" | "refunded";
+  paymentReference?: string; // manual bKash/Nagad/card transaction ID entered by admin
   inStockEta?: string; // ISO date
   preOrderEta?: string; // ISO date
   shipmentId?: string;

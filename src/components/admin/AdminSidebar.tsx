@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { useUser } from "@/context/UserContext";
+import { signOut } from "@/actions/auth";
 import { cn } from "@/lib/utils";
 
 const nav: { label: string; href: string; icon: IconName }[] = [
@@ -14,11 +16,12 @@ const nav: { label: string; href: string; icon: IconName }[] = [
 
 const labels = {
   brand: "SBD Admin",
-  phase1Note: "Phase 1 — no auth",
+  signOut: "Sign out",
 };
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { user } = useUser();
 
   return (
     <aside
@@ -28,9 +31,11 @@ export function AdminSidebar() {
       {/* Brand */}
       <div className="px-5 py-5 border-b border-white/10">
         <p className="text-[15px] font-semibold text-paper">{labels.brand}</p>
-        <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-          {labels.phase1Note}
-        </p>
+        {user?.email && (
+          <p className="text-[11px] mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
+            {user.email}
+          </p>
+        )}
       </div>
 
       {/* Nav */}
@@ -59,8 +64,8 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* Back to store */}
-      <div className="px-3 py-4 border-t border-white/10">
+      {/* Back to store + sign out */}
+      <div className="px-3 py-4 border-t border-white/10 space-y-0.5">
         <Link
           href="/"
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-paper/40 hover:text-paper/70 transition-colors"
@@ -68,6 +73,15 @@ export function AdminSidebar() {
           <Icon name="arrow-left" size={16} strokeWidth={1.5} />
           Back to store
         </Link>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-paper/40 hover:text-paper/70 transition-colors cursor-pointer"
+          >
+            <Icon name="logout" size={16} strokeWidth={1.5} />
+            {labels.signOut}
+          </button>
+        </form>
       </div>
     </aside>
   );

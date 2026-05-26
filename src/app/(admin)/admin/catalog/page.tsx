@@ -1,4 +1,4 @@
-import { products } from "@/data/products";
+import { getAllProducts } from "@/actions/admin/products";
 import { Chip } from "@/components/ui/Chip";
 import { formatBDT } from "@/lib/utils";
 import type { ComponentProps } from "react";
@@ -24,7 +24,9 @@ const statusConfig: Record<string, { label: string; variant: ChipVariant }> = {
   "out-of-stock": { label: "Out of stock", variant: "line" },
 };
 
-export default function AdminCatalogPage() {
+export default async function AdminCatalogPage() {
+  const products = await getAllProducts();
+
   const sorted = [...products].sort((a, b) => {
     const order = { "in-stock": 0, "pre-order": 1, "out-of-stock": 2 };
     return (order[a.status] ?? 9) - (order[b.status] ?? 9);
@@ -32,9 +34,7 @@ export default function AdminCatalogPage() {
 
   return (
     <div className="px-6 py-8">
-      <h1 className="text-[20px] font-semibold text-ink mb-1">
-        {labels.heading}
-      </h1>
+      <h1 className="text-[20px] font-semibold text-ink mb-1">{labels.heading}</h1>
       <p className="text-[13px] text-muted mb-6">
         {labels.sub}{" "}
         <span className="text-ink font-medium">{products.length} products</span>
@@ -70,6 +70,9 @@ export default function AdminCatalogPage() {
                 variant: "default" as ChipVariant,
               };
               const isLast = i === sorted.length - 1;
+              const thumb =
+                product.images.length > 0 ? product.images[0] : product.hero;
+              const isUrl = thumb.startsWith("http");
 
               return (
                 <tr
@@ -79,40 +82,38 @@ export default function AdminCatalogPage() {
                   {/* Product */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      {/* Gradient swatch */}
                       <div
-                        className="w-8 h-8 rounded-lg shrink-0"
-                        style={{ background: product.hero }}
-                      />
+                        className="w-8 h-8 rounded-lg shrink-0 overflow-hidden"
+                        style={!isUrl ? { background: thumb } : undefined}
+                      >
+                        {isUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={thumb}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
                       <div className="min-w-0">
                         <p className="text-ink font-medium truncate max-w-[200px]">
                           {product.name}
                         </p>
-                        <p className="font-mono text-[11px] text-muted">
-                          {product.id}
-                        </p>
+                        <p className="font-mono text-[11px] text-muted">{product.id}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-muted whitespace-nowrap">
-                    {product.brand}
-                  </td>
-                  <td className="px-4 py-3 text-muted capitalize">
-                    {product.category}
-                  </td>
+                  <td className="px-4 py-3 text-muted whitespace-nowrap">{product.brand}</td>
+                  <td className="px-4 py-3 text-muted capitalize">{product.category}</td>
                   <td className="px-4 py-3">
                     <span className="font-mono text-[12px] text-muted bg-bg px-2 py-0.5 rounded">
                       {product.originCountry}
                     </span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <p className="font-mono text-ink">
-                      {formatBDT(product.priceBDT)}
-                    </p>
+                    <p className="font-mono text-ink">{formatBDT(product.priceBDT)}</p>
                     {product.priceUSD != null && (
-                      <p className="font-mono text-[11px] text-muted">
-                        ${product.priceUSD}
-                      </p>
+                      <p className="font-mono text-[11px] text-muted">${product.priceUSD}</p>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -125,9 +126,7 @@ export default function AdminCatalogPage() {
                     <span
                       className="inline-block w-2 h-2 rounded-full"
                       style={{
-                        backgroundColor: product.isActive
-                          ? "var(--ok)"
-                          : "var(--line)",
+                        backgroundColor: product.isActive ? "var(--ok)" : "var(--line)",
                       }}
                     />
                   </td>

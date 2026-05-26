@@ -83,12 +83,12 @@ export function TrackingTimeline({ steps }: TrackingTimelineProps) {
               >
                 {step.description}
               </p>
-              {step.timestamp && (
+              {step.occurredAt && (
                 <p
                   className="font-mono text-[11px] mt-0.5"
                   style={{ color: "var(--muted)", opacity: 0.7 }}
                 >
-                  {formatDate(step.timestamp, "short")}
+                  {formatDate(step.occurredAt, "short")}
                 </p>
               )}
             </div>

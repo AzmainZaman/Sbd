@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main, Production]
+  pull_request:
+    branches: [main, Production]
+
+jobs:
+  lint-and-build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          # Supabase — dummy values satisfy Next.js build (no real DB calls at build time)
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_placeholder
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
+          # Resend — omit to skip email sends during build
+          RESEND_API_KEY: ""
+          RESEND_FROM_EMAIL: orders@sbd.com.bd
+          # Payment
+          BKASH_MERCHANT_NUMBER: "01700000000"
+          NAGAD_MERCHANT_NUMBER: "01700000000"
+          # Admin
+          ADMIN_EMAIL: admin@sbd.com.bd

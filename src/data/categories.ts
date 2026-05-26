@@ -1,12 +1,5 @@
-import type { ProductCategory } from "@/types/product";
-
-export type Category = {
-  slug: ProductCategory;
-  label: string;
-  productCount: number;
-  /** CSS gradient used as hero image placeholder in Phase 1 */
-  heroGradient: string;
-};
+import type { Category } from "@/types/category";
+export type { Category };
 
 export const categories: Category[] = [
   {

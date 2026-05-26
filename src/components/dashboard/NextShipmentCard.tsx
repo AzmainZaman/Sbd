@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { shipments } from "@/data/shipments";
+import { fetchOpenShipments } from "@/actions/shipments";
 import { formatDate } from "@/lib/utils";
 import { Icon } from "@/components/ui/Icon";
 
@@ -10,17 +10,11 @@ const labels = {
   cta: "View all shipments",
 };
 
-export function NextShipmentCard() {
-  const accepting = shipments
-    .filter((s) => s.status === "accepting")
-    .sort(
-      (a, b) =>
-        new Date(a.cutoffDate).getTime() - new Date(b.cutoffDate).getTime()
-    );
+export async function NextShipmentCard() {
+  const open = await fetchOpenShipments();
+  if (open.length === 0) return null;
 
-  if (accepting.length === 0) return null;
-
-  const next = accepting[0];
+  const next = open[0];
 
   return (
     <div

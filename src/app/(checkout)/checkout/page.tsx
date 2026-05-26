@@ -11,6 +11,7 @@ import { DeliveryOptions } from "@/components/checkout/DeliveryOptions";
 import { PaymentSelector } from "@/components/checkout/PaymentSelector";
 import { ConsentBlock } from "@/components/checkout/ConsentBlock";
 import { Button } from "@/components/ui/Button";
+import { createOrder } from "@/actions/orders";
 import type { PaymentMethod } from "@/types/order";
 
 const labels = {
@@ -31,6 +32,8 @@ export default function CheckoutPage() {
   const [deliveryMethod, setDeliveryMethod] = useState<"split" | "together">("together");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [agreed, setAgreed] = useState(false);
+  const [isPlacing, setIsPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState<string | null>(null);
 
   const hasPreOrder = items.some((i) => i.type === "pre-order");
   const hasInStock = items.some((i) => i.type === "in-stock");
@@ -41,17 +44,22 @@ export default function CheckoutPage() {
   const preOrderEta = preOrderItem?.eta;
   const preOrderShipmentId = preOrderItem?.shipmentId;
 
-  function handlePlaceOrder() {
-    const mockId = `SBD-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-    const params = new URLSearchParams({ id: mockId });
-    if (hasInStock) params.set("stock", "1");
-    if (hasPreOrder) {
-      params.set("pre", "1");
-      if (preOrderEta) params.set("preEta", preOrderEta);
-      if (preOrderShipmentId) params.set("shipmentId", preOrderShipmentId);
+  async function handlePlaceOrder() {
+    if (!paymentMethod) return;
+    setIsPlacing(true);
+    setPlaceError(null);
+    try {
+      const { orderId } = await createOrder({
+        items,
+        deliveryMethod,
+        paymentMethod,
+      });
+      clearItems();
+      router.push(`/order-confirmation?id=${orderId}`);
+    } catch (err) {
+      setPlaceError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setIsPlacing(false);
     }
-    clearItems();
-    router.push(`/order-confirmation?${params.toString()}`);
   }
 
   // Empty cart state
@@ -123,11 +131,18 @@ export default function CheckoutPage() {
             <ShipmentNote shipmentId={preOrderShipmentId} eta={preOrderEta} />
           )}
 
+          {placeError && (
+            <p className="text-[13px] text-center" style={{ color: "var(--accent)" }}>
+              {placeError}
+            </p>
+          )}
           <ConsentBlock
             agreed={agreed}
             onAgreedChange={setAgreed}
             paymentSelected={paymentMethod !== null}
+            paymentMethod={paymentMethod}
             onPlaceOrder={handlePlaceOrder}
+            isPlacing={isPlacing}
           />
         </div>
       </div>

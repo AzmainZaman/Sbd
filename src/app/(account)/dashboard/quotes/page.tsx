@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { quotes } from "@/data/quotes";
+import { getQuotesByCustomer } from "@/actions/quotes";
 import { QuoteListItem } from "@/components/dashboard/QuoteListItem";
 import { Button } from "@/components/ui/Button";
 
@@ -15,8 +15,8 @@ const labels = {
 
 const activeStatuses = new Set(["pending", "quote-sent", "customer-replied"]);
 
-export default function QuotesPage() {
-  const myQuotes = quotes.filter((q) => q.customerId === "cust-001");
+export default async function QuotesPage() {
+  const myQuotes = await getQuotesByCustomer();
   const active = myQuotes.filter((q) => activeStatuses.has(q.status));
   const past = myQuotes.filter((q) => !activeStatuses.has(q.status));
 

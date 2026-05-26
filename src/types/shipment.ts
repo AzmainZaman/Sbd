@@ -10,11 +10,14 @@ export type ShipmentStatus =
   | "delivered";
 
 export type ShipmentMilestone = {
+  id?: string;
   label: string;
-  completedAt?: string; // ISO datetime if done
+  completedAt?: string; // ISO datetime if done — maps to DB column completed_at
+  position?: number;
 };
 
 export type ShipmentBreakdown = {
+  id?: string;
   category: string;
   itemCount: number;
   valueBDT: number;

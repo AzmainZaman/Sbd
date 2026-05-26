@@ -1,7 +1,36 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { formatDate } from "@/lib/utils";
-import { shipments } from "@/data/shipments";
+import { formatDate, formatBDT } from "@/lib/utils";
+import { getOrder } from "@/actions/orders";
+import { fetchShipmentById } from "@/actions/shipments";
+import type { PaymentMethod } from "@/types/order";
+
+const BKASH_NUMBER = process.env.BKASH_MERCHANT_NUMBER ?? "01700000000";
+const NAGAD_NUMBER = process.env.NAGAD_MERCHANT_NUMBER ?? "01700000000";
+
+const paymentInstructions: Record<Exclude<PaymentMethod, "cod">, { title: string; accent: string; bg: string; border: string; body: (n: string, id: string) => string }> = {
+  bkash: {
+    title: "Send payment via bKash",
+    accent: "#E2006A",
+    bg: "var(--paper)",
+    border: "#f9c0d8",
+    body: (n, id) => `Send Money to ${BKASH_NUMBER}. Use ${id} as your reference. We'll confirm within 2 hours. Amount: ${n}.`,
+  },
+  nagad: {
+    title: "Send payment via Nagad",
+    accent: "#F7941D",
+    bg: "var(--paper)",
+    border: "#fcd9a8",
+    body: (n, id) => `Send Money to ${NAGAD_NUMBER}. Use ${id} as your reference. We'll confirm within 2 hours. Amount: ${n}.`,
+  },
+  card: {
+    title: "Complete your card payment",
+    accent: "#1B4FBB",
+    bg: "var(--paper)",
+    border: "#c5d0f0",
+    body: (n, id) => `Please contact us via WhatsApp or email to complete your payment of ${n}. Quote order ID ${id}. We'll confirm within 2 hours.`,
+  },
+};
 
 const labels = {
   heading: "Order placed!",
@@ -9,7 +38,6 @@ const labels = {
   orderIdLabel: "Order reference",
   inStockCard: "In-stock items",
   inStockEta: "Estimated delivery",
-  inStockNote: "2–5 business days after customs clearance",
   preOrderCard: "Pre-order items",
   preOrderVia: "Arrives with",
   preOrderEta: "Expected arrival",
@@ -23,27 +51,41 @@ const labels = {
   trackOrder: "Track my order",
   continueShopping: "Continue shopping",
   whatsappHelp: "Questions? Message us on WhatsApp",
+  notFound: "Order not found",
+  notFoundSub: "This order could not be found in your account.",
 };
 
 type PageProps = {
-  searchParams: Promise<{
-    id?: string;
-    stock?: string;
-    pre?: string;
-    preEta?: string;
-    shipmentId?: string;
-  }>;
+  searchParams: Promise<{ id?: string }>;
 };
 
 export default async function OrderConfirmationPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const orderId = params.id ?? `SBD-${new Date().getFullYear()}-DEMO`;
-  const hasStock = params.stock === "1";
-  const hasPre = params.pre === "1";
-  const preEta = params.preEta;
-  const shipmentId = params.shipmentId;
+  const { id } = await searchParams;
 
-  const shipment = shipmentId ? shipments.find((s) => s.id === shipmentId) : null;
+  if (!id) {
+    return (
+      <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-12 text-center">
+        <p className="text-[18px] font-semibold text-ink mb-2">{labels.notFound}</p>
+        <p className="text-[14px] text-muted">{labels.notFoundSub}</p>
+      </div>
+    );
+  }
+
+  const order = await getOrder(id);
+
+  if (!order) {
+    return (
+      <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-12 text-center">
+        <p className="text-[18px] font-semibold text-ink mb-2">{labels.notFound}</p>
+        <p className="text-[14px] text-muted">{labels.notFoundSub}</p>
+      </div>
+    );
+  }
+
+  const hasStock = order.type === "in-stock" || order.type === "mixed";
+  const hasPre = order.type === "pre-order" || order.type === "mixed";
+
+  const shipment = order.shipmentId ? await fetchShipmentById(order.shipmentId) : null;
 
   return (
     <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-12 lg:py-16">
@@ -78,8 +120,30 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
         <p className="text-[11px] font-semibold text-muted uppercase tracking-widest mb-1">
           {labels.orderIdLabel}
         </p>
-        <p className="font-mono text-[22px] font-semibold text-ink">{orderId}</p>
+        <p className="font-mono text-[22px] font-semibold text-ink">{order.id}</p>
       </div>
+
+      {/* Payment instructions — non-COD pending orders only */}
+      {order.paymentStatus === "pending" && order.paymentMethod !== "cod" && (() => {
+        const inst = paymentInstructions[order.paymentMethod as Exclude<PaymentMethod, "cod">];
+        if (!inst) return null;
+        return (
+          <div
+            className="rounded-2xl border px-6 py-5 mb-6"
+            style={{ borderColor: inst.border, backgroundColor: inst.bg }}
+          >
+            <p className="text-[13px] font-semibold mb-2" style={{ color: inst.accent }}>
+              {inst.title}
+            </p>
+            <p className="text-[14px] text-ink leading-relaxed">
+              {inst.body(formatBDT(order.totalBDT), order.id)}
+            </p>
+            <p className="mt-3 text-[12px] text-muted">
+              Your order is reserved. We begin sourcing once payment is confirmed.
+            </p>
+          </div>
+        );
+      })()}
 
       {/* ETA cards */}
       {(hasStock || hasPre) && (
@@ -93,7 +157,13 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
                 {labels.inStockCard}
               </p>
               <p className="text-[12px] text-muted mb-0.5">{labels.inStockEta}</p>
-              <p className="text-[14px] font-medium text-ink">{labels.inStockNote}</p>
+              {order.inStockEta ? (
+                <p className="font-mono text-[14px] font-semibold text-ink">
+                  {formatDate(order.inStockEta, "mono")}
+                </p>
+              ) : (
+                <p className="text-[14px] font-medium text-ink">2–5 business days after customs clearance</p>
+              )}
             </div>
           )}
 
@@ -116,11 +186,11 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
                   </p>
                 </div>
               )}
-              {preEta && (
+              {order.preOrderEta && (
                 <div>
                   <p className="text-[12px] text-muted mb-0.5">{labels.preOrderEta}</p>
                   <p className="font-mono text-[14px] font-semibold text-ink">
-                    {formatDate(preEta, "mono")}
+                    {formatDate(order.preOrderEta, "mono")}
                   </p>
                 </div>
               )}
@@ -135,7 +205,6 @@ export default async function OrderConfirmationPage({ searchParams }: PageProps)
         <ol className="space-y-0">
           {labels.steps.map((step, i) => (
             <li key={step.label} className="flex gap-4">
-              {/* Step indicator */}
               <div className="flex flex-col items-center">
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0"

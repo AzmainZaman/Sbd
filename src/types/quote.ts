@@ -12,7 +12,7 @@ export type Quote = {
   id: string; // e.g. "QR-2026-08412"
   customerId: string;
   customerName: string;
-  customerPhone: string;
+  customerPhone?: string; // optional until Phase 3 SMS OTP
   requestedAt: string; // ISO datetime
   sourceUrl: string;
   sourceRetailer: string;

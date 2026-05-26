@@ -1,5 +1,7 @@
-import { quotes } from "@/data/quotes";
+import { getQuote } from "@/actions/quotes";
 import { QuoteThreadClient } from "./QuoteThreadClient";
+
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -7,10 +9,6 @@ type PageProps = {
 
 export default async function QuotePage({ params }: PageProps) {
   const { id } = await params;
-  const quote = quotes.find((q) => q.id === id) ?? null;
+  const quote = await getQuote(id);
   return <QuoteThreadClient quote={quote} />;
-}
-
-export function generateStaticParams() {
-  return quotes.map((q) => ({ id: q.id }));
 }

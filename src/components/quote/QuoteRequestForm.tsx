@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { QuantityInput } from "@/components/ui/QuantityInput";
-import { shipments } from "@/data/shipments";
+import type { OpenShipmentSummary } from "@/actions/shipments";
 
 const labels = {
   stepLabel: "Step 1 of 2",
@@ -39,13 +39,14 @@ export type QuoteFormData = {
 
 type QuoteRequestFormProps = {
   initialUrl?: string;
+  openShipments: OpenShipmentSummary[];
   onNext: (data: QuoteFormData) => void;
 };
 
 const inputClass =
   "w-full h-10 px-3 rounded-xl border border-line bg-paper text-[14px] text-ink placeholder:text-muted focus:outline-none focus:border-ink transition-colors";
 
-export function QuoteRequestForm({ initialUrl = "", onNext }: QuoteRequestFormProps) {
+export function QuoteRequestForm({ initialUrl = "", openShipments, onNext }: QuoteRequestFormProps) {
   const [url, setUrl] = useState(initialUrl);
   const [productName, setProductName] = useState("");
   const [variant, setVariant] = useState("");
@@ -54,8 +55,6 @@ export function QuoteRequestForm({ initialUrl = "", onNext }: QuoteRequestFormPr
   const [budgetStr, setBudgetStr] = useState("");
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const openShipments = shipments.filter((s) => s.status === "accepting");
 
   function validate() {
     const errs: Record<string, string> = {};

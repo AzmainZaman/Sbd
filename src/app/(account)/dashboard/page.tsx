@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { orders } from "@/data/orders";
-import { quotes } from "@/data/quotes";
+import { createClient } from "@/lib/supabase/server";
+import { getOrdersByCustomer } from "@/actions/orders";
+import { getQuotesByCustomer } from "@/actions/quotes";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { NextShipmentCard } from "@/components/dashboard/NextShipmentCard";
 import { OrderRow } from "@/components/dashboard/OrderRow";
@@ -9,7 +10,7 @@ import { Chip } from "@/components/ui/Chip";
 import { formatBDT, formatDate } from "@/lib/utils";
 
 const labels = {
-  greeting: "Welcome back, Nuzhat",
+  greeting: "Welcome back",
   statOrders: "Total orders",
   statQuoteReady: "Quotes ready",
   statPending: "Pending quotes",
@@ -25,20 +26,31 @@ const labels = {
   quoteCtaBtn: "Request a quote",
 };
 
-export default function DashboardPage() {
-  const myOrders = orders.filter((o) => o.customerId === "cust-001");
-  const myQuotes = quotes.filter((q) => q.customerId === "cust-001");
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [myOrders, myQuotes, profile] = await Promise.all([
+    getOrdersByCustomer(),
+    getQuotesByCustomer(),
+    user
+      ? supabase.from("users").select("name").eq("id", user.id).single()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  const userName = profile?.data?.name ?? "there";
 
   const readyQuotes = myQuotes.filter((q) => q.status === "quote-sent");
   const pendingQuotes = myQuotes.filter((q) => q.status === "pending");
   const activeQuote = readyQuotes[0] ?? null;
+
   const recentOrders = myOrders.slice(0, 2);
 
   return (
     <div className="max-w-[860px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
       {/* Greeting */}
       <h1 className="text-[24px] font-semibold text-ink mb-6">
-        {labels.greeting}
+        {labels.greeting}, {userName}
       </h1>
 
       {/* Stat cards */}
