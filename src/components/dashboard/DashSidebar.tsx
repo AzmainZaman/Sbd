@@ -17,7 +17,6 @@ const nav: { label: string; href: string; icon: IconName }[] = [
 const labels = {
   memberTier: "Gold member",
   accountSettings: "Account settings",
-  soon: "Soon",
   signOut: "Sign out",
 };
 
