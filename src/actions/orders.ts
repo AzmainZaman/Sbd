@@ -39,6 +39,7 @@ export type CreateOrderInput = {
   items: CartItem[];
   deliveryMethod: "split" | "together";
   paymentMethod: PaymentMethod;
+  deliveryAddressId: string | null;
 };
 
 export async function createOrder(input: CreateOrderInput): Promise<{ orderId: string }> {
@@ -69,6 +70,7 @@ export async function createOrder(input: CreateOrderInput): Promise<{ orderId: s
     delivery_method: input.deliveryMethod,
     payment_method: input.paymentMethod,
     payment_status: "pending",
+    delivery_address_id: input.deliveryAddressId ?? null,
     subtotal_bdt: subtotalBDT,
     shipping_bdt: INBOUND_SHIPPING_BDT,
     duty_bdt: dutyBDT,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
@@ -10,9 +10,12 @@ import { ShipmentNote } from "@/components/checkout/ShipmentNote";
 import { DeliveryOptions } from "@/components/checkout/DeliveryOptions";
 import { PaymentSelector } from "@/components/checkout/PaymentSelector";
 import { ConsentBlock } from "@/components/checkout/ConsentBlock";
+import { AddressSection } from "@/components/checkout/AddressSection";
 import { Button } from "@/components/ui/Button";
 import { createOrder } from "@/actions/orders";
+import { getAddresses } from "@/actions/addresses";
 import type { PaymentMethod } from "@/types/order";
+import type { Address } from "@/types/address";
 
 const labels = {
   emptyHeading: "Your cart is empty",
@@ -20,26 +23,32 @@ const labels = {
   continueShopping: "Continue shopping",
   yourOrder: "Your order",
   deliveryAddress: "Delivery address",
-  editAddress: "Edit",
-  addressPlaceholder: "48 Gulshan Avenue, Apt 7B\nGulshan-2, Dhaka 1212",
-  addressNote: "Address management available after sign-in (Phase 2).",
 };
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotalBDT, itemCount, clearItems } = useCart();
 
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [deliveryMethod, setDeliveryMethod] = useState<"split" | "together">("together");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [agreed, setAgreed] = useState(false);
   const [isPlacing, setIsPlacing] = useState(false);
   const [placeError, setPlaceError] = useState<string | null>(null);
 
+  useEffect(() => {
+    getAddresses().then((list) => {
+      setAddresses(list);
+      const def = list.find((a) => a.isDefault) ?? list[0] ?? null;
+      if (def) setSelectedAddressId(def.id);
+    });
+  }, []);
+
   const hasPreOrder = items.some((i) => i.type === "pre-order");
   const hasInStock = items.some((i) => i.type === "in-stock");
   const isMixed = hasPreOrder && hasInStock;
 
-  // First pre-order item's shipment/ETA info for ShipmentNote
   const preOrderItem = items.find((i) => i.type === "pre-order");
   const preOrderEta = preOrderItem?.eta;
   const preOrderShipmentId = preOrderItem?.shipmentId;
@@ -53,6 +62,7 @@ export default function CheckoutPage() {
         items,
         deliveryMethod,
         paymentMethod,
+        deliveryAddressId: selectedAddressId,
       });
       clearItems();
       router.push(`/order-confirmation?id=${orderId}`);
@@ -62,7 +72,6 @@ export default function CheckoutPage() {
     }
   }
 
-  // Empty cart state
   if (items.length === 0) {
     return (
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
@@ -90,20 +99,12 @@ export default function CheckoutPage() {
 
           {/* Delivery address */}
           <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[17px] font-semibold text-ink">{labels.deliveryAddress}</h2>
-              <button
-                type="button"
-                className="text-[13px] text-muted hover:text-ink transition-colors cursor-pointer"
-                aria-label="Edit delivery address"
-              >
-                {labels.editAddress}
-              </button>
-            </div>
-            <div className="rounded-xl border border-line bg-paper px-4 py-3">
-              <p className="text-[14px] text-ink whitespace-pre-line">{labels.addressPlaceholder}</p>
-              <p className="text-[11px] text-muted mt-2">{labels.addressNote}</p>
-            </div>
+            <h2 className="text-[17px] font-semibold text-ink mb-4">{labels.deliveryAddress}</h2>
+            <AddressSection
+              addresses={addresses}
+              selectedId={selectedAddressId}
+              onSelect={setSelectedAddressId}
+            />
           </section>
 
           {/* Delivery options — only for mixed carts */}

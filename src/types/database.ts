@@ -44,6 +44,7 @@ export type Database = {
           apt: string | null
           area: string
           city: string
+          full_name: string | null
           id: string
           label: string | null
           landmark: string | null
@@ -55,6 +56,7 @@ export type Database = {
           apt?: string | null
           area: string
           city: string
+          full_name?: string | null
           id?: string
           label?: string | null
           landmark?: string | null
@@ -66,6 +68,7 @@ export type Database = {
           apt?: string | null
           area?: string
           city?: string
+          full_name?: string | null
           id?: string
           label?: string | null
           landmark?: string | null

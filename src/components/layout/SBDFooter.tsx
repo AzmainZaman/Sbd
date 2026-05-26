@@ -24,8 +24,8 @@ const shopLinks = [
 ];
 
 const companyLinks = [
-  { label: "About SBD", href: "#" },
-  { label: "Contact us", href: "#" },
+  { label: "About SBD", href: "/about" },
+  { label: "Contact us", href: "/contact" },
   { label: "Shipment schedule", href: "/shipments" },
   { label: "Traveler programme", href: "/traveler" },
   { label: "Blog", href: "/blog" },
@@ -33,11 +33,11 @@ const companyLinks = [
 
 const helpLinks = [
   { label: "Track an order", href: "/track" },
-  { label: "How it works", href: "#" },
-  { label: "Pre-order policy", href: "#" },
-  { label: "Returns & refunds", href: "#" },
-  { label: "Pricing & duties", href: "#" },
-  { label: "FAQ", href: "#" },
+  { label: "How it works", href: "/about#how-it-works" },
+  { label: "Pre-order policy", href: "/pre-order-policy" },
+  { label: "Returns & refunds", href: "/refund-policy" },
+  { label: "Pricing & duties", href: "/pricing" },
+  { label: "FAQ", href: "/faq" },
 ];
 
 const paymentMethods = ["bKash", "Nagad", "Visa", "Mastercard"];

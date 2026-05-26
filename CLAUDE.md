@@ -1,6 +1,7 @@
 # CLAUDE.md — SBD Global Shopping
 
-This is a pre-order e-commerce platform for SBD Global Shopping (sbd.com.bd), targeting Bangladesh.  
+This is a pre-order e-commerce platform for SBD Global Shopping (sbd.com.bd), targeting Bangladesh.
+**Phase 2 complete and deployed:** https://shob.ai · https://sbd-five.vercel.app
 Read `PROJECT_BRIEF.md`, `DESIGN_AUDIT.md`, `IMPLEMENTATION_PLAN.md`, `DATA_MODEL.md`, and `PHASES.md` before starting any work.
 
 ---
@@ -14,11 +15,13 @@ Read `PROJECT_BRIEF.md`, `DESIGN_AUDIT.md`, `IMPLEMENTATION_PLAN.md`, `DATA_MODE
 - **React Context** for cart state — `localStorage` persistence added in Phase 2
 - Phase 1 data: `src/data/` mock files (seed-only after Phase 2C migrates each entity to DB)
 
-### Phase 2 additions
+### Phase 2 (complete)
 - **Supabase** (`supabase-js`, `@supabase/ssr`) — PostgreSQL database, Auth (email OTP), Storage (product images), Row Level Security
-- **Resend** — transactional email: quote sent, order confirmation, delivery notification
+- **Resend** — transactional email: quote sent, order confirmation, delivery notification (from address: team@shob.ai)
 - **Next.js Server Actions** — all form mutations; no separate REST API routes (`app/api/`)
 - **No ORM** — Supabase client is the sole data access layer; do not introduce Prisma or any ORM without explicit discussion
+- **`src/proxy.ts`** — session refresh proxy + route guards (Next.js 16 uses `proxy`, not `middleware`)
+- **Production Supabase project:** `jywdtdhkftrvcunqbcbd`
 
 ---
 
@@ -230,7 +233,7 @@ Use helpers from `lib/shipment-utils.ts`:
 ## Admin Panel
 
 - Admin routes are under `/admin/...` (route group `(admin)`)
-- In Phase 1 the admin is accessible at `/admin` with no auth gate
+- `/admin/*` requires `role = admin` in `public.users` — enforced by `assertAdmin()` in every admin Server Action and by `src/proxy.ts` route guard
 - Dark sidebar uses `#0e0e0c` (same as `--ink`) — not a separate dark token
 - Admin is desktop-only in v1; show a banner on mobile: "Admin panel is optimised for desktop (768px+)"
 

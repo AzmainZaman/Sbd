@@ -1,8 +1,14 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { mapProduct, mapCategory } from "@/lib/db";
 import { CategoryClient } from "./CategoryClient";
 import type { Metadata } from "next";
+
+export async function generateStaticParams() {
+  const supabase = createServiceClient();
+  const { data } = await supabase.from("categories").select("slug");
+  return (data ?? []).map((row) => ({ slug: row.slug }));
+}
 
 type PageProps = {
   params: Promise<{ slug: string }>;

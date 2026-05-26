@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { useCart } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
 
 const labels = {
@@ -19,6 +20,8 @@ const labels = {
   navShipments: "Shipments",
   navBlog: "Blog",
   navTrack: "Track order",
+  dashboard: "My Account",
+  signIn: "Sign in",
 };
 
 const navLinks = [
@@ -31,6 +34,7 @@ const navLinks = [
 
 export function SBDHeaderMobile() {
   const { itemCount, openCart } = useCart();
+  const { user } = useUser();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -122,6 +126,15 @@ export function SBDHeaderMobile() {
                   </Link>
                 </li>
               ))}
+              <li className="pt-1 mt-1 border-t border-line">
+                <Link
+                  href={user ? "/dashboard" : "/login"}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center h-11 px-3 rounded-xl text-[15px] font-medium text-ink hover:bg-bg transition-colors"
+                >
+                  {user ? labels.dashboard : labels.signIn}
+                </Link>
+              </li>
             </ul>
           </nav>
         )}

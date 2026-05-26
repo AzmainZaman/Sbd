@@ -7,6 +7,8 @@
 Customers browse or paste product links, receive a transparent quote (price + duties + handling fee), accept it, and track delivery through shipment milestones. A secondary **traveler program** lets frequent flyers earn money by carrying items in their luggage.
 
 **Current site:** sbd.com.bd
+**v1 deployed:** https://shob.ai (primary) · https://sbd-five.vercel.app (Vercel URL)
+**Phase status:** Phase 2 complete (2A–2J). Phase 3 (payment integration) is next.
 
 ---
 

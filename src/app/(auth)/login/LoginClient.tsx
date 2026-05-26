@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { sendOtp, verifyOtp } from "@/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 const labels = {
   emailHeading: "Sign in to your account",
@@ -34,6 +35,18 @@ export function LoginClient({ next }: { next?: string }) {
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code") ?? params.get("token_hash");
+    if (!code) return;
+
+    const supabase = createClient();
+    supabase.auth.exchangeCodeForSession(code).then(({ error: err }) => {
+      if (err) return;
+      router.replace(next ?? "/dashboard");
+    });
+  }, [next, router]);
 
   function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
