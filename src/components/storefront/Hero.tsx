@@ -31,7 +31,7 @@ export function Hero() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/categories/beauty">
+              <Link href="/categories">
                 <Button variant="primary" size="lg">{labels.cta1}</Button>
               </Link>
               <Link href="#how-it-works">
