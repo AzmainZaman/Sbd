@@ -57,13 +57,13 @@ export function QuoteCTA() {
         />
 
         <div className="relative max-w-140 mx-auto text-center">
-          <span className="text-[11px] font-mono font-semibold tracking-widest text-paper/50">
+          <span className="text-[13px] font-mono font-semibold tracking-widest text-paper/70">
             {labels.eyebrow}
           </span>
           <h2 className="mt-3 text-[32px] lg:text-[40px] font-semibold text-paper leading-tight">
             {labels.heading}
           </h2>
-          <p className="mt-4 text-[15px] text-paper/70 leading-relaxed max-w-110 mx-auto">
+          <p className="mt-4 text-[16px] text-paper/85 leading-relaxed max-w-110 mx-auto">
             {labels.sub}
           </p>
 
@@ -88,13 +88,13 @@ export function QuoteCTA() {
 
           {/* Retailer chips */}
           <div className="mt-4 flex items-center gap-2 flex-wrap justify-center">
-            <span className="text-[12px] text-paper/40">{labels.worksWithLabel}</span>
+            <span className="text-[13px] text-paper/65">{labels.worksWithLabel}</span>
             {RETAILERS.map((r) => (
-              <Chip key={r} variant="line" className="border-white/20 text-paper/60">
+              <Chip key={r} variant="line" className="border-white/30 text-paper/80">
                 {r}
               </Chip>
             ))}
-            <span className="text-[12px] text-paper/40">{labels.andMore}</span>
+            <span className="text-[13px] text-paper/65">{labels.andMore}</span>
           </div>
         </div>
       </div>
