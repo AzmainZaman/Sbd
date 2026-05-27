@@ -1,17 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { TopBar } from "./TopBar";
+import { HeaderSearch } from "./HeaderSearch";
 import { Icon } from "@/components/ui/Icon";
 import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
-import { cn } from "@/lib/utils";
 
 const labels = {
   logoAlt: "SBD Global Shopping",
-  searchPlaceholder: "Search or paste a product URL…",
-  searchLabel: "Go to search",
   navShop: "Shop",
   navCategories: "Categories",
   navShipments: "Shipments",
@@ -33,7 +30,6 @@ const navLinks = [
 export function SBDHeader() {
   const { itemCount, openCart } = useCart();
   const { user } = useUser();
-  const router = useRouter();
   const accountHref = user ? "/dashboard" : "/login";
   const accountLabel = user ? labels.accountLabel : labels.signIn;
   const userInitial = user?.email?.[0]?.toUpperCase() ?? null;
@@ -54,35 +50,7 @@ export function SBDHeader() {
         </Link>
 
         {/* Search bar */}
-        <form
-          className="flex-1 max-w-lg"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const q = (e.currentTarget.elements.namedItem("q") as HTMLInputElement).value.trim();
-            if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
-          }}
-        >
-          <div className="relative">
-            <input
-              type="text"
-              name="q"
-              placeholder={labels.searchPlaceholder}
-              className={cn(
-                "w-full h-10 pl-4 pr-10 rounded-xl border border-line bg-bg",
-                "text-[14px] text-ink placeholder:text-muted",
-                "focus:outline-none focus:border-ink focus:bg-paper",
-                "transition-colors"
-              )}
-            />
-            <button
-              type="submit"
-              aria-label={labels.searchLabel}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-ink transition-colors cursor-pointer"
-            >
-              <Icon name="search" size={16} />
-            </button>
-          </div>
-        </form>
+        <HeaderSearch />
 
         {/* Nav links */}
         <nav
