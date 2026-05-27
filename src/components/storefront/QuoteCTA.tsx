@@ -45,53 +45,56 @@ export function QuoteCTA() {
   }
 
   return (
-    <section style={{ background: "var(--ink)" }}>
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-        <div className="max-w-[680px] mx-auto text-center">
-          <p className="text-[12px] font-semibold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      <div
+        className="relative rounded-3xl overflow-hidden px-8 py-12 lg:px-16 lg:py-16"
+        style={{ background: "var(--ink)" }}
+      >
+        {/* Background accent blob */}
+        <div
+          className="absolute top-0 right-0 w-75 h-75 rounded-full opacity-20 blur-3xl pointer-events-none"
+          style={{ background: "var(--accent)" }}
+        />
+
+        <div className="relative max-w-140">
+          <span className="text-[11px] font-mono font-semibold tracking-widest text-paper/50">
             {labels.eyebrow}
-          </p>
-          <h2 className="text-[32px] lg:text-[40px] font-semibold tracking-tight leading-tight mb-4" style={{ color: "var(--paper)" }}>
+          </span>
+          <h2 className="mt-3 text-[32px] lg:text-[40px] font-semibold text-paper leading-tight">
             {labels.heading}
           </h2>
-          <p className="text-[15px] lg:text-[16px] leading-relaxed mb-8 max-w-130 mx-auto" style={{ color: "rgba(255,255,255,0.55)" }}>
+          <p className="mt-4 text-[15px] text-paper/70 leading-relaxed max-w-110">
             {labels.sub}
           </p>
 
           {/* URL input */}
-          <form onSubmit={handleSubmit} className="flex gap-2 max-w-[560px] mx-auto mb-5">
+          <form onSubmit={handleSubmit} className="mt-8 flex gap-2 max-w-120">
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               onPaste={handlePaste}
               placeholder={labels.placeholder}
-              className="flex-1 h-12 px-4 rounded-xl border-2 text-[14px] focus:outline-none transition-colors"
+              className="flex-1 h-12 px-4 rounded-xl border text-[14px] text-paper placeholder:text-paper/40 focus:outline-none focus:border-paper/40 transition-colors"
               style={{
-                borderColor: "rgba(255,255,255,0.15)",
-                background: "rgba(255,255,255,0.07)",
-                color: "var(--paper)",
+                borderColor: "rgba(255,255,255,0.2)",
+                background: "rgba(255,255,255,0.08)",
               }}
             />
-            <Button
-              type="submit"
-              variant="accent"
-              size="md"
-              disabled={!isValidUrl(url)}
-            >
+            <Button type="submit" variant="accent" size="md">
               {labels.cta}
             </Button>
           </form>
 
           {/* Retailer chips */}
-          <div className="flex items-center gap-2 flex-wrap justify-center">
-            <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>{labels.worksWithLabel}</span>
+          <div className="mt-4 flex items-center gap-2 flex-wrap">
+            <span className="text-[12px] text-paper/40">{labels.worksWithLabel}</span>
             {RETAILERS.map((r) => (
-              <Chip key={r} variant="line" className="border-white/20 text-white/70">
+              <Chip key={r} variant="line" className="border-white/20 text-paper/60">
                 {r}
               </Chip>
             ))}
-            <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>{labels.andMore}</span>
+            <span className="text-[12px] text-paper/40">{labels.andMore}</span>
           </div>
         </div>
       </div>
