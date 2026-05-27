@@ -45,16 +45,16 @@ export function QuoteCTA() {
   }
 
   return (
-    <section className="bg-paper border-y border-[var(--line)]">
+    <section style={{ background: "var(--ink)" }}>
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
         <div className="max-w-[680px] mx-auto text-center">
-          <p className="text-[12px] font-semibold uppercase tracking-widest text-[var(--muted)] mb-3">
+          <p className="text-[12px] font-semibold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>
             {labels.eyebrow}
           </p>
-          <h2 className="text-[32px] lg:text-[40px] font-semibold text-[var(--ink)] tracking-tight leading-tight mb-4">
+          <h2 className="text-[32px] lg:text-[40px] font-semibold tracking-tight leading-tight mb-4" style={{ color: "var(--paper)" }}>
             {labels.heading}
           </h2>
-          <p className="text-[15px] lg:text-[16px] text-[var(--muted)] leading-relaxed mb-8 max-w-[520px] mx-auto">
+          <p className="text-[15px] lg:text-[16px] leading-relaxed mb-8 max-w-130 mx-auto" style={{ color: "rgba(255,255,255,0.55)" }}>
             {labels.sub}
           </p>
 
@@ -66,7 +66,12 @@ export function QuoteCTA() {
               onChange={(e) => setUrl(e.target.value)}
               onPaste={handlePaste}
               placeholder={labels.placeholder}
-              className="flex-1 h-12 px-4 rounded-xl border-2 border-[var(--line)] bg-[var(--bg)] text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--ink)] transition-colors"
+              className="flex-1 h-12 px-4 rounded-xl border-2 text-[14px] focus:outline-none transition-colors"
+              style={{
+                borderColor: "rgba(255,255,255,0.15)",
+                background: "rgba(255,255,255,0.07)",
+                color: "var(--paper)",
+              }}
             />
             <Button
               type="submit"
@@ -80,13 +85,13 @@ export function QuoteCTA() {
 
           {/* Retailer chips */}
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            <span className="text-[12px] text-[var(--muted)]">{labels.worksWithLabel}</span>
+            <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>{labels.worksWithLabel}</span>
             {RETAILERS.map((r) => (
-              <Chip key={r} variant="line">
+              <Chip key={r} variant="line" className="border-white/20 text-white/70">
                 {r}
               </Chip>
             ))}
-            <span className="text-[12px] text-[var(--muted)]">{labels.andMore}</span>
+            <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>{labels.andMore}</span>
           </div>
         </div>
       </div>
