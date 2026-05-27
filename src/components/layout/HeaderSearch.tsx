@@ -25,18 +25,20 @@ export function HeaderSearch() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    if (!value.trim() || value.trim().length < 2) {
-      setSuggestions([]);
-      setOpen(false);
-      return;
-    }
+    const shouldClear = !value.trim() || value.trim().length < 2;
+    const delay = shouldClear ? 0 : 250;
 
     debounceRef.current = setTimeout(async () => {
+      if (!value.trim() || value.trim().length < 2) {
+        setSuggestions([]);
+        setOpen(false);
+        return;
+      }
       const data = await getSearchSuggestions(value.trim());
       setSuggestions(data);
       setOpen(data.length > 0);
       setHighlighted(-1);
-    }, 250);
+    }, delay);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
