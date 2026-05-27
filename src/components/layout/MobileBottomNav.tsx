@@ -23,7 +23,7 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: labels.shop, href: "/", icon: "home", matchPrefix: "/" },
+  { label: labels.shop, href: "/shop", icon: "home", matchPrefix: "/shop" },
   {
     label: labels.categories,
     href: "/categories/beauty",

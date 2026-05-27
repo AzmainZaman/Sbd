@@ -32,7 +32,7 @@ export function Hero() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/categories">
+              <Link href="/shop">
                 <Button variant="primary" size="lg">{labels.cta1}</Button>
               </Link>
               <Link href="/dashboard/quotes/new">

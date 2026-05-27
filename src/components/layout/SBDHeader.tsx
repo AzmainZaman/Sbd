@@ -20,7 +20,7 @@ const labels = {
 };
 
 const navLinks = [
-  { label: labels.navShop, href: "/" },
+  { label: labels.navShop, href: "/shop" },
   { label: labels.navCategories, href: "/categories" },
   { label: labels.navShipments, href: "/shipments" },
   { label: labels.navBlog, href: "/blog" },

@@ -45,14 +45,14 @@ export default async function HomePage() {
         title="Available now"
         subtitle="In-stock products — order today, ships with the next batch"
         products={inStock}
-        viewAllHref="/categories"
+        viewAllHref="/shop?type=in-stock"
         viewAllLabel="View all"
       />
       <ProductRow
         title="Pre-order · Arriving June 2026"
         subtitle="Join Shipment #14 — cutoff 2 June"
         products={preOrder}
-        viewAllHref="/categories"
+        viewAllHref="/pre-orders"
         viewAllLabel="View all pre-orders"
       />
       <QuoteCTA />
