@@ -485,9 +485,9 @@ function FormStep({
 
 // ─── Main client component ────────────────────────────────────────────────────
 
-export function QuoteRequestClient() {
+export function QuoteRequestClient({ initialUrl = "" }: { initialUrl?: string }) {
   const [step, setStep] = useState<Step>("enter");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(initialUrl);
   const [preview, setPreview] = useState<LinkPreview | null>(null);
   const [formData, setFormData] = useState<QuoteFormData | null>(null);
   const [openShipments, setOpenShipments] = useState<OpenShipmentSummary[]>([]);
@@ -495,6 +495,15 @@ export function QuoteRequestClient() {
 
   useEffect(() => {
     fetchOpenShipments().then(setOpenShipments);
+  }, []);
+
+  // Auto-trigger preview when arriving with a pre-filled URL (e.g. from homepage)
+  useEffect(() => {
+    if (initialUrl && isValidUrl(initialUrl)) {
+      handleFetchPreview(initialUrl);
+    }
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleFetchPreview(targetUrl: string) {

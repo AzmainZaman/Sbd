@@ -7,7 +7,8 @@ const labels = {
   headlineAccent: "Delivered to Bangladesh.",
   sub: "Pre-order from the USA, UK, Europe, and more — authentic products at transparent prices, shipped directly to your door.",
   cta1: "Shop now",
-  cta2: "How it works",
+  cta2: "Request a quote",
+  howItWorks: "How it works ↓",
   sourcedFrom: "Sourced from",
   trust1: "100% Authentic",
   trust2: "Transparent pricing",
@@ -34,8 +35,16 @@ export function Hero() {
               <Link href="/categories">
                 <Button variant="primary" size="lg">{labels.cta1}</Button>
               </Link>
-              <Link href="#how-it-works">
-                <Button variant="ghost" size="lg">{labels.cta2}</Button>
+              <Link href="/dashboard/quotes/new">
+                <Button variant="accent" size="lg">{labels.cta2}</Button>
+              </Link>
+            </div>
+            <div className="mt-3">
+              <Link
+                href="#how-it-works"
+                className="text-[13px] text-muted hover:text-ink transition-colors"
+              >
+                {labels.howItWorks}
               </Link>
             </div>
 

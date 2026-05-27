@@ -41,8 +41,10 @@ export async function proxy(request: NextRequest) {
 
   if (!user && (requiresAuth || requiresAdmin)) {
     const url = request.nextUrl.clone();
+    const nextPath = pathname + request.nextUrl.search;
     url.pathname = "/login";
-    url.searchParams.set("next", pathname);
+    url.search = "";
+    url.searchParams.set("next", nextPath);
     return NextResponse.redirect(url);
   }
 

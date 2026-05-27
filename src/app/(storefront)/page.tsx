@@ -5,6 +5,7 @@ import { CountryStrip } from "@/components/storefront/CountryStrip";
 import { ShipmentBanner } from "@/components/storefront/ShipmentBanner";
 import { ProductRow } from "@/components/storefront/ProductRow";
 import { HowItWorks } from "@/components/storefront/HowItWorks";
+import { QuoteCTA } from "@/components/storefront/QuoteCTA";
 import { TravelerCTA } from "@/components/storefront/TravelerCTA";
 import { Testimonials } from "@/components/storefront/Testimonials";
 import { Newsletter } from "@/components/storefront/Newsletter";
@@ -54,6 +55,7 @@ export default async function HomePage() {
         viewAllHref="/categories"
         viewAllLabel="View all pre-orders"
       />
+      <QuoteCTA />
       <HowItWorks />
       <TravelerCTA />
       <Testimonials />
