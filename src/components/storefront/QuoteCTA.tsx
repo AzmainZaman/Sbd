@@ -56,19 +56,19 @@ export function QuoteCTA() {
           style={{ background: "var(--accent)" }}
         />
 
-        <div className="relative max-w-140">
+        <div className="relative max-w-140 mx-auto text-center">
           <span className="text-[11px] font-mono font-semibold tracking-widest text-paper/50">
             {labels.eyebrow}
           </span>
           <h2 className="mt-3 text-[32px] lg:text-[40px] font-semibold text-paper leading-tight">
             {labels.heading}
           </h2>
-          <p className="mt-4 text-[15px] text-paper/70 leading-relaxed max-w-110">
+          <p className="mt-4 text-[15px] text-paper/70 leading-relaxed max-w-110 mx-auto">
             {labels.sub}
           </p>
 
           {/* URL input */}
-          <form onSubmit={handleSubmit} className="mt-8 flex gap-2 max-w-120">
+          <form onSubmit={handleSubmit} className="mt-8 flex gap-2 max-w-120 mx-auto">
             <input
               type="url"
               value={url}
@@ -87,7 +87,7 @@ export function QuoteCTA() {
           </form>
 
           {/* Retailer chips */}
-          <div className="mt-4 flex items-center gap-2 flex-wrap">
+          <div className="mt-4 flex items-center gap-2 flex-wrap justify-center">
             <span className="text-[12px] text-paper/40">{labels.worksWithLabel}</span>
             {RETAILERS.map((r) => (
               <Chip key={r} variant="line" className="border-white/20 text-paper/60">
