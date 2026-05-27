@@ -23,7 +23,10 @@ const CATEGORY_IMAGES: Record<string, { src: string; position: string }> = {
   supplements: { src: "https://images.unsplash.com/photo-1707129785947-ddc627a8bab9?w=900&h=600&fit=crop&q=85", position: "center center" },
   home:        { src: "https://images.unsplash.com/photo-1618221639244-c1a8502c0eb9?w=900&h=600&fit=crop&q=85", position: "center 40%" },
   kids:        { src: "https://images.unsplash.com/photo-1560859251-d563a49c5e4a?w=900&h=600&fit=crop&q=85",    position: "center 60%" },
+  other:       { src: "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=900&h=600&fit=crop&q=85", position: "center center" },
 };
+
+const FALLBACK_IMAGE = { src: "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=900&h=600&fit=crop&q=85", position: "center center" };
 
 // Short taglines to add character without real product imagery
 const TAGLINES: Record<string, string> = {
@@ -79,7 +82,7 @@ export default async function CategoriesPage() {
             const count = countBySlug[cat.slug] ?? 0;
             const isComingSoon = count === 0;
             const tagline = TAGLINES[cat.slug] ?? "";
-            const img = CATEGORY_IMAGES[cat.slug];
+            const img = CATEGORY_IMAGES[cat.slug] ?? FALLBACK_IMAGE;
 
             return (
               <Link
@@ -89,16 +92,14 @@ export default async function CategoriesPage() {
                 style={{ background: cat.hero_gradient }}
               >
                 {/* Hero image */}
-                {img && (
-                  <Image
-                    src={img.src}
-                    alt={cat.label}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                    style={{ objectPosition: img.position }}
-                  />
-                )}
+                <Image
+                  src={img.src}
+                  alt={cat.label}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  style={{ objectPosition: img.position }}
+                />
 
                 {/* Dark gradient overlay for text legibility */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
