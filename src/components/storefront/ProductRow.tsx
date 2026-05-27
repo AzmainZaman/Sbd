@@ -18,7 +18,7 @@ export function ProductRow({
   viewAllLabel = "View all",
 }: ProductRowProps) {
   return (
-    <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
       <div className="flex items-end justify-between gap-4 mb-8">
         <div>
           <h2 className="text-[28px] lg:text-[32px] font-semibold text-ink">{title}</h2>

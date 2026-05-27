@@ -76,7 +76,7 @@ See `IMPLEMENTATION_PLAN.md` for full sub-phase detail.
 
 ---
 
-## Phase 3 — Production Fixes + Customer Account Completion + Catalog Polish
+## Phase 3 — Production Fixes + Customer Account Completion + Catalog Polish ✅ 3A Complete
 
 **Goal:** Make the entire deployed site fully functional with no dead stubs, broken routes, or missing data. Give customers complete account management. Polish search and admin catalog. Payment gateway integration deferred to Phase 4 (API credentials collected then).
 
@@ -86,14 +86,14 @@ See `IMPLEMENTATION_PLAN.md` for full sub-phase detail.
 
 | Sub-phase | Scope | Key output |
 |---|---|---|
-| **3A** | Production blocker fixes + auth polish | All dead routes fixed; sign out works; real user name; auth state in header; OTP email code-only |
-| **3B** | Address management + checkout address form | Real address form at checkout; saved addresses CRUD; checkout address selector |
-| **3C** | Account settings | `/dashboard/settings`: edit name + phone; email display; remove "Soon" chip |
+| **3A** ✅ | Production blocker fixes + auth polish | All dead routes fixed; sign out works; real user name; auth state in header; OTP email code-only |
+| **3B** ✅ | Address management + checkout address form | Real address form at checkout; saved addresses CRUD; checkout address selector |
+| **3C** ✅ | Account settings | `/dashboard/settings`: edit name + phone; email display; remove "Soon" chip |
 | **3D** | Search + catalog completeness | DB-backed category filters; real product search; empty-state reviews; admin stats + CRUD QA |
 
 See `IMPLEMENTATION_PLAN.md` for full sub-phase detail.
 
-### Phase 3A — Production Blocker Fixes + Auth Polish
+### Phase 3A — Production Blocker Fixes + Auth Polish ✅ Complete
 
 **Goal:** Every broken or dead route fixed on production. Every disabled auth stub wired up. Zero placeholder content visible to real users.
 
@@ -158,7 +158,7 @@ src/app/(auth)/login/LoginClient.tsx
 
 ---
 
-### Phase 3B — Address Management + Checkout Address Form
+### Phase 3B — Address Management + Checkout Address Form ✅ Complete
 
 **Goal:** Checkout has a real, usable address form. Customers can save and manage delivery addresses.
 
@@ -206,7 +206,7 @@ src/actions/orders.ts                            ← createOrder() accepts addre
 
 ---
 
-### Phase 3C — Account Settings
+### Phase 3C — Account Settings ✅ Complete
 
 **Goal:** Customer can view and update their profile.
 

@@ -8,7 +8,7 @@ Customers browse or paste product links, receive a transparent quote (price + du
 
 **Current site:** sbd.com.bd
 **v1 deployed:** https://shob.ai (primary) · https://sbd-five.vercel.app (Vercel URL)
-**Phase status:** Phase 2 complete (2A–2J). Phase 3 (payment integration) is next.
+**Phase status:** Phase 3 in progress (3A–3C complete; 3D next). Phase 4 = payments + traveler portal.
 
 ---
 

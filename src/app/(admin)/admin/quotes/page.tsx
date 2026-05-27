@@ -214,9 +214,14 @@ function DetailPane({
         {quote.sourceUrl && (
           <div className="mt-2">
             <span className="text-[12px] text-muted">{labels.urlLabel}: </span>
-            <span className="text-[12px] text-ink break-all">
+            <a
+              href={quote.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[12px] text-ink underline break-all hover:opacity-70 transition-opacity"
+            >
               {quote.sourceUrl}
-            </span>
+            </a>
           </div>
         )}
 

@@ -129,6 +129,17 @@ export async function createOrder(input: CreateOrderInput): Promise<{ orderId: s
   return { orderId };
 }
 
+type DbAddress = {
+  id: string;
+  label: string | null;
+  street_address: string;
+  apt: string | null;
+  area: string;
+  city: string;
+  postal_code: string;
+  landmark: string | null;
+} | null;
+
 type DbOrder = {
   id: string;
   customer_id: string;
@@ -150,6 +161,7 @@ type DbOrder = {
   shipment_id: string | null;
   order_lines: DbLine[];
   tracking_steps: DbStep[];
+  addresses: DbAddress;
 };
 
 type DbLine = {
@@ -218,6 +230,18 @@ function mapDbOrder(row: DbOrder): Order {
           position: s.position,
         })
       ),
+    deliveryAddress: row.addresses
+      ? {
+          id: row.addresses.id,
+          label: row.addresses.label ?? undefined,
+          streetAddress: row.addresses.street_address,
+          apt: row.addresses.apt ?? undefined,
+          area: row.addresses.area,
+          city: row.addresses.city,
+          postalCode: row.addresses.postal_code,
+          landmark: row.addresses.landmark ?? undefined,
+        }
+      : undefined,
   };
 }
 
@@ -227,7 +251,8 @@ const ORDER_SELECT = `
   subtotal_bdt, total_bdt, payment_method, payment_status,
   payment_reference, in_stock_eta, pre_order_eta, shipment_id,
   order_lines ( id, product_id, product_name, variant, quantity, unit_price_bdt, total_bdt, type, quote_id ),
-  tracking_steps ( id, label, description, occurred_at, status, position )
+  tracking_steps ( id, label, description, occurred_at, status, position ),
+  addresses!delivery_address_id ( id, label, street_address, apt, area, city, postal_code, landmark )
 ` as const;
 
 export async function getOrdersByCustomer(): Promise<Order[]> {

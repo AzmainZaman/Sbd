@@ -17,7 +17,7 @@ const labels = {
 export function CountryStrip() {
   return (
     <section className="border-y border-line bg-paper">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
         <div className="flex items-center gap-4 overflow-x-auto scrollbar-none">
           <span className="text-[13px] text-muted whitespace-nowrap flex-shrink-0">
             {labels.heading}

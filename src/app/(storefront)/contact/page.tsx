@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 const labels = {
   heading: "Contact Us",
-  sub: "We're here to help. Reach us through any of the channels below — we typically reply within 2 hours during business hours (9 AM–9 PM BST, Sunday–Thursday).",
+  sub: "We're here to help. Reach us through any of the channels below — we typically reply within 2 hours during business hours (9 AM–9 PM BDT, Sunday–Thursday).",
 };
 
 const channels = [

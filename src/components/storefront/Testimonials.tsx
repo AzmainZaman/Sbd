@@ -43,7 +43,7 @@ const labels = {
 export function Testimonials() {
   return (
     <section className="bg-bg border-t border-line">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
         <div className="text-center mb-10">
           <h2 className="text-[28px] lg:text-[36px] font-semibold text-ink">{labels.heading}</h2>
           <p className="mt-3 text-[15px] text-muted">{labels.sub}</p>

@@ -14,9 +14,9 @@ const labels = {
   sendCode: "Send code",
   sending: "Sending…",
   otpHeading: "Check your email",
-  otpSub: (email: string) => `We sent an 8-digit code to ${email}`,
+  otpSub: (email: string) => `We sent a 6-digit code to ${email}`,
   otpLabel: "One-time code",
-  otpPlaceholder: "12345678",
+  otpPlaceholder: "123456",
   verify: "Sign in",
   verifying: "Verifying…",
   changeEmail: "Use a different email",
@@ -152,8 +152,8 @@ export function LoginClient({ next }: { next?: string }) {
                 id="login-otp"
                 type="text"
                 inputMode="numeric"
-                pattern="\d{8}"
-                maxLength={8}
+                pattern="\d{6}"
+                maxLength={6}
                 required
                 autoFocus
                 autoComplete="one-time-code"
@@ -175,7 +175,7 @@ export function LoginClient({ next }: { next?: string }) {
               variant="primary"
               size="lg"
               className="w-full"
-              disabled={isPending || token.length < 8}
+              disabled={isPending || token.length < 6}
             >
               {isPending ? labels.verifying : labels.verify}
             </Button>

@@ -24,7 +24,7 @@ export function Newsletter() {
 
   return (
     <section className="bg-paper border-t border-line">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
         <div className="max-w-[560px] mx-auto text-center">
           <h2 className="text-[28px] lg:text-[32px] font-semibold text-ink">{labels.heading}</h2>
           <p className="mt-3 text-[15px] text-muted">{labels.sub}</p>

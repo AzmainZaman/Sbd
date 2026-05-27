@@ -97,7 +97,7 @@ export function SearchResults() {
   }, [q, isQuoteMode]);
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <h1 className="text-[28px] lg:text-[32px] font-semibold text-[var(--ink)] mb-6">
         {isQuoteMode ? labels.quoteHeading : labels.heading}
       </h1>

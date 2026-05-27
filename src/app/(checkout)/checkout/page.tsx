@@ -74,7 +74,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <p className="text-[20px] font-semibold text-ink mb-2">{labels.emptyHeading}</p>
         <p className="text-[14px] text-muted mb-6">{labels.emptyBody}</p>
         <Link href="/">
@@ -85,7 +85,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       <div className="lg:grid lg:grid-cols-12 lg:gap-12 items-start">
 
         {/* ── Left column ── */}

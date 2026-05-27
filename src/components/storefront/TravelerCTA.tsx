@@ -11,7 +11,7 @@ const labels = {
 
 export function TravelerCTA() {
   return (
-    <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
       <div
         className="relative rounded-3xl overflow-hidden px-8 py-12 lg:px-16 lg:py-16"
         style={{ background: "var(--ink)" }}

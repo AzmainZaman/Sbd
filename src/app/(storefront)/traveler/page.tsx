@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 const labels = {
   eyebrow: "COMING SOON",
   heading: "The Traveler Portal",
-  sub: "Earn by bringing packages on your next trip abroad. The traveler programme is currently in development and will launch in Phase 2.",
+  sub: "Earn by bringing packages on your next trip abroad. The traveler programme is currently in development and will launch in Phase 4.",
   back: "Back to shop",
 };
 

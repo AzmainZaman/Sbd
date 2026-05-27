@@ -18,7 +18,7 @@ type QuoteThreadClientProps = {
 export function QuoteThreadClient({ quote }: QuoteThreadClientProps) {
   if (!quote) {
     return (
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <p className="text-[24px] font-semibold text-[var(--ink)] mb-2">{labels.notFound}</p>
         <p className="text-[14px] text-[var(--muted)]">{labels.notFoundDesc}</p>
       </div>
@@ -26,7 +26,7 @@ export function QuoteThreadClient({ quote }: QuoteThreadClientProps) {
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <Link
         href="/dashboard/quotes"
         className="inline-flex items-center text-[13px] text-[var(--muted)] hover:text-[var(--ink)] transition-colors mb-6"

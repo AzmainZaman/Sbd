@@ -60,7 +60,7 @@ export function ShipmentBanner() {
 
   return (
     <section style={{ background: "var(--ink)" }}>
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4 flex-wrap">
             <span className="font-mono text-[12px] text-paper/50">

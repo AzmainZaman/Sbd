@@ -523,7 +523,7 @@ export function QuoteRequestClient({ initialUrl = "" }: { initialUrl?: string })
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Link
         href="/dashboard/quotes"
         className="inline-flex items-center text-[13px] text-[var(--muted)] hover:text-[var(--ink)] transition-colors mb-6"

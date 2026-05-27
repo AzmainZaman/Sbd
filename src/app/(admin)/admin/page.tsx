@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/auth-guard";
 import { formatBDT } from "@/lib/utils";
@@ -61,7 +62,7 @@ export default async function AdminPage() {
       <h1 className="text-[20px] font-semibold text-ink mb-6">{labels.heading}</h1>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => (
-          <a
+          <Link
             key={card.label}
             href={card.href}
             className="rounded-xl border border-line bg-paper px-5 py-5 hover:border-ink transition-colors block"
@@ -70,7 +71,7 @@ export default async function AdminPage() {
               {card.label}
             </p>
             <p className="text-[28px] font-semibold text-ink leading-none">{card.value}</p>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

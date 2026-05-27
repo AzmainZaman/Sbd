@@ -56,7 +56,7 @@ export function ProductClient({ product, shipment, related }: Props) {
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumb */}
       <nav className="hidden lg:flex items-center gap-2 text-[13px] text-muted mb-8">
         <Link href="/" className="hover:text-ink transition-colors">
@@ -164,11 +164,13 @@ export function ProductClient({ product, shipment, related }: Props) {
 
       {/* Reviews section */}
       {product.reviewCount > 0 && (
-        <div className="mt-16 border-t border-line pt-12 space-y-8">
+        <div className="mt-16 border-t border-line pt-12">
           <ReviewSummary rating={product.rating} reviewCount={product.reviewCount} />
-          <ReviewList />
         </div>
       )}
+      <div className="mt-16 border-t border-line pt-12">
+        <ReviewList />
+      </div>
 
       {/* Related products */}
       {related.length > 0 && (
