@@ -32,7 +32,7 @@ export default async function QuotesPage() {
             {labels.empty}
           </p>
           <p className="text-[13px] text-muted mb-4">{labels.emptySub}</p>
-          <Link href="/search">
+          <Link href="/dashboard/quotes/new">
             <Button variant="accent" size="md">
               {labels.emptyBtn}
             </Button>
@@ -46,7 +46,7 @@ export default async function QuotesPage() {
     <div className="max-w-[720px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-[24px] font-semibold text-ink">{labels.heading}</h1>
-        <Link href="/search">
+        <Link href="/dashboard/quotes/new">
           <Button variant="accent" size="sm">
             + New quote
           </Button>

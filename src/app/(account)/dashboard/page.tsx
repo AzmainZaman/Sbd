@@ -146,7 +146,7 @@ export default async function DashboardPage() {
           {labels.quoteCta}
         </p>
         <p className="text-[13px] text-muted mb-4">{labels.quoteCtaSub}</p>
-        <Link href="/search">
+        <Link href="/dashboard/quotes/new">
           <Button variant="accent" size="md">
             {labels.quoteCtaBtn}
           </Button>

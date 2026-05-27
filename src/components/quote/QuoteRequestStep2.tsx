@@ -108,7 +108,7 @@ export function QuoteRequestStep2({ data, openShipments, onBack, onSuccess }: Qu
           <div className="flex flex-col items-center gap-3">
             <Chip variant="pre">{labels.awaitingReview}</Chip>
             <Link
-              href="/search"
+              href="/dashboard/quotes/new"
               className="text-[13px] text-muted hover:text-ink transition-colors underline underline-offset-2"
             >
               {labels.requestAnother}
