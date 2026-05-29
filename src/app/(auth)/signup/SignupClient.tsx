@@ -1,29 +1,31 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { sendOtp, verifyOtp } from "@/actions/auth";
+import { sendOtpForSignup, verifyOtpAndSetName } from "@/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 
 const labels = {
-  heading: "Welcome back",
-  sub: "Sign in to track orders, manage quotes, and more.",
+  heading: "Create your account",
+  sub: "Start tracking global shipments and get personalised quotes.",
+  nameLabel: "Full name",
+  namePlaceholder: "Jane Smith",
   emailLabel: "Email address",
   emailPlaceholder: "you@example.com",
-  sendCode: "Continue with email",
+  sendCode: "Continue",
   sending: "Sending…",
-  otpHeading: "Check your email",
+  otpHeading: "Verify your email",
   otpSub: (email: string) => `We sent a 6-digit code to ${email}`,
   otpLabel: "One-time code",
   otpPlaceholder: "123456",
-  verify: "Sign in",
-  verifying: "Verifying…",
+  verify: "Create account",
+  verifying: "Creating account…",
   changeEmail: "Use a different email",
   resend: "Resend code",
-  noAccount: "Don't have an account?",
-  signUp: "Create one",
+  hasAccount: "Already have an account?",
+  signIn: "Sign in",
   orDivider: "or",
   googleLabel: "Continue with Google",
 };
@@ -31,39 +33,23 @@ const labels = {
 const inputClass =
   "w-full h-11 px-3 rounded-xl border border-[var(--line)] bg-[var(--paper)] text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--ink)] transition-colors";
 
-type Step = "email" | "otp";
+type Step = "details" | "otp";
 
-export function LoginClient({ next }: { next?: string }) {
+export function SignupClient({ next }: { next?: string }) {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("email");
+  const [step, setStep] = useState<Step>("details");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const [isGooglePending, setIsGooglePending] = useState(false);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-
-    if (params.get("error") === "auth_callback_failed") {
-      setError("Google sign-in failed. Please try again.");
-    }
-
-    const code = params.get("code") ?? params.get("token_hash");
-    if (!code) return;
-
-    const supabase = createClient();
-    supabase.auth.exchangeCodeForSession(code).then(({ error: err }) => {
-      if (err) return;
-      router.replace(next ?? "/dashboard");
-    });
-  }, [next, router]);
-
   function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     startTransition(async () => {
-      const result = await sendOtp(email.trim());
+      const result = await sendOtpForSignup(email.trim(), name.trim());
       if (result.error) {
         setError(result.error);
       } else {
@@ -76,7 +62,7 @@ export function LoginClient({ next }: { next?: string }) {
     e.preventDefault();
     setError("");
     startTransition(async () => {
-      const result = await verifyOtp(email.trim(), token.trim());
+      const result = await verifyOtpAndSetName(email.trim(), token.trim(), name.trim());
       if (result.error) {
         setError(result.error);
       } else {
@@ -90,12 +76,12 @@ export function LoginClient({ next }: { next?: string }) {
     setError("");
     setToken("");
     startTransition(async () => {
-      const result = await sendOtp(email.trim());
+      const result = await sendOtpForSignup(email.trim(), name.trim());
       if (result.error) setError(result.error);
     });
   }
 
-  async function handleGoogleSignIn() {
+  async function handleGoogleSignUp() {
     setIsGooglePending(true);
     const supabase = createClient();
     const { error: err } = await supabase.auth.signInWithOAuth({
@@ -112,7 +98,7 @@ export function LoginClient({ next }: { next?: string }) {
 
   return (
     <div className="rounded-2xl border border-[var(--line)] bg-[var(--paper)] px-6 py-8">
-      {step === "email" ? (
+      {step === "details" ? (
         <>
           <h1 className="text-[22px] font-semibold text-[var(--ink)] mb-1">
             {labels.heading}
@@ -122,7 +108,7 @@ export function LoginClient({ next }: { next?: string }) {
           {/* Google OAuth */}
           <button
             type="button"
-            onClick={handleGoogleSignIn}
+            onClick={handleGoogleSignUp}
             disabled={isGooglePending || isPending}
             className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-[var(--line)] bg-[var(--paper)] text-[14px] font-medium text-[var(--ink)] hover:bg-[var(--bg)] transition-colors disabled:opacity-40 cursor-pointer mb-4"
           >
@@ -139,16 +125,35 @@ export function LoginClient({ next }: { next?: string }) {
           <form onSubmit={handleSendOtp} className="space-y-4">
             <div>
               <label
-                htmlFor="login-email"
+                htmlFor="signup-name"
+                className="block text-[13px] font-medium text-[var(--ink)] mb-1.5"
+              >
+                {labels.nameLabel}
+              </label>
+              <input
+                id="signup-name"
+                type="text"
+                required
+                autoFocus
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={labels.namePlaceholder}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="signup-email"
                 className="block text-[13px] font-medium text-[var(--ink)] mb-1.5"
               >
                 {labels.emailLabel}
               </label>
               <input
-                id="login-email"
+                id="signup-email"
                 type="email"
                 required
-                autoFocus
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -165,22 +170,22 @@ export function LoginClient({ next }: { next?: string }) {
 
             <Button
               type="submit"
-              variant="primary"
+              variant="accent"
               size="lg"
               className="w-full"
-              disabled={isPending || isGooglePending || !email.trim()}
+              disabled={isPending || isGooglePending || !name.trim() || !email.trim()}
             >
               {isPending ? labels.sending : labels.sendCode}
             </Button>
           </form>
 
           <p className="mt-5 text-center text-[13px] text-[var(--muted)]">
-            {labels.noAccount}{" "}
+            {labels.hasAccount}{" "}
             <Link
-              href={`/signup${next ? `?next=${encodeURIComponent(next)}` : ""}`}
+              href={`/login${next ? `?next=${encodeURIComponent(next)}` : ""}`}
               className="text-[var(--ink)] font-medium hover:underline"
             >
-              {labels.signUp}
+              {labels.signIn}
             </Link>
           </p>
         </>
@@ -196,13 +201,13 @@ export function LoginClient({ next }: { next?: string }) {
           <form onSubmit={handleVerifyOtp} className="space-y-4">
             <div>
               <label
-                htmlFor="login-otp"
+                htmlFor="signup-otp"
                 className="block text-[13px] font-medium text-[var(--ink)] mb-1.5"
               >
                 {labels.otpLabel}
               </label>
               <input
-                id="login-otp"
+                id="signup-otp"
                 type="text"
                 inputMode="numeric"
                 pattern="\d{6}"
@@ -225,7 +230,7 @@ export function LoginClient({ next }: { next?: string }) {
 
             <Button
               type="submit"
-              variant="primary"
+              variant="accent"
               size="lg"
               className="w-full"
               disabled={isPending || token.length < 6}
@@ -237,7 +242,7 @@ export function LoginClient({ next }: { next?: string }) {
           <div className="flex items-center justify-between mt-4 text-[13px]">
             <button
               type="button"
-              onClick={() => { setStep("email"); setError(""); setToken(""); }}
+              onClick={() => { setStep("details"); setError(""); setToken(""); }}
               className="text-[var(--muted)] hover:text-[var(--ink)] transition-colors"
             >
               {labels.changeEmail}

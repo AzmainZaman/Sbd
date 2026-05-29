@@ -1,17 +1,17 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { LoginClient } from "./LoginClient";
+import { SignupClient } from "./SignupClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign in — SBD Global Shopping",
+  title: "Create account — SBD Global Shopping",
 };
 
 type PageProps = {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string }>;
 };
 
-export default async function LoginPage({ searchParams }: PageProps) {
+export default async function SignupPage({ searchParams }: PageProps) {
   const { next } = await searchParams;
   const supabase = await createClient();
   const {
@@ -20,5 +20,5 @@ export default async function LoginPage({ searchParams }: PageProps) {
 
   if (user) redirect(next ?? "/dashboard");
 
-  return <LoginClient next={next} />;
+  return <SignupClient next={next} />;
 }
